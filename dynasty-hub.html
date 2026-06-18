@@ -727,6 +727,8 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .depth-sel { width:100%; font-size:0.78rem; padding:5px 8px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; color:var(--text2); cursor:pointer; transition:border-color .15s; }
 .depth-sel:focus { border-color:var(--red-border); outline:none; }
 .depth-sel:not([value=""]) { color:var(--text); }
+.depth-row-need { background:var(--red-subtle) !important; }
+.depth-pos-need { border-color:var(--red-border); color:var(--red); }
 .player-card.is-legend   { border-left:3px solid var(--purple);box-shadow:0 0 18px rgba(167,139,250,0.07); }
 .player-card-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
 .player-card-name { font-weight:800;font-size:0.9rem;color:var(--text); }
@@ -3966,8 +3968,10 @@ function populateCompareDropdowns(){
 function getAllPlayers(){
   // Returns [{seasonLabel, seasonNum, player}] across current + archived seasons
   const list=[];
+  const pipelineNames=new Set(S.players.filter(p=>p.isPipeline).map(p=>(p.name||'').toLowerCase()));
   (S.seasonStats.players||[]).forEach(p=>{
-    list.push({seasonLabel:'Season '+S.season+' (current)', seasonNum:'current', player:p});
+    if(!pipelineNames.has((p.name||'').toLowerCase()))
+      list.push({seasonLabel:'Season '+S.season+' (current)', seasonNum:'current', player:p});
   });
   (S.seasons||[]).forEach(s=>{
     const players=(s.seasonStats&&s.seasonStats.players)||[];
@@ -4114,9 +4118,23 @@ function renderDepthChart(){
     const opts='<option value="">— Empty —</option>'+sorted.map(p=>`<option value="${p.id}"${String(p.id)===val?' selected':''}>${esc(p.name)} (${esc(p.pos||'?')} · ${p.overall||'—'})</option>`).join('');
     return `<select class="depth-sel" onchange="updateDepthSlot('${key}',${idx},this.value)">${opts}</select>`;
   };
+  // Needs indicator — count empty #1 starter slots
+  const emptyStarters=DEPTH_CHART_SLOTS.filter(s=>{
+    const val=(S.depthChart[s.key]||['','',''])[0];
+    return !val;
+  });
+  const needsBanner=emptyStarters.length
+    ? `<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;background:var(--red-subtle);border:1px solid var(--red-border);margin-bottom:18px;">
+        <span style="font-size:1rem;">🎯</span>
+        <span style="font-size:0.8rem;color:var(--text2);"><strong style="color:var(--red);">${emptyStarters.length} starter slot${emptyStarters.length>1?'s':''} unfilled:</strong> ${emptyStarters.map(s=>s.label).join(', ')}</span>
+       </div>`
+    : `<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);margin-bottom:18px;">
+        <span style="font-size:1rem;">✅</span>
+        <span style="font-size:0.8rem;color:var(--text2);">All starter slots filled.</span>
+       </div>`;
   const groups=['OFFENSE','DEFENSE','SPECIAL TEAMS'];
   const groupIcons={OFFENSE:'⚡',DEFENSE:'🛡',['SPECIAL TEAMS']:'🦵'};
-  let html='';
+  let html=needsBanner;
   groups.forEach(grp=>{
     const slots=DEPTH_CHART_SLOTS.filter(s=>s.group===grp);
     html+=`<div style="margin-bottom:24px;">
@@ -4128,12 +4146,15 @@ function renderDepthChart(){
           <div class="depth-col-label">#2 Backup</div>
           <div class="depth-col-label">#3</div>
         </div>
-        ${slots.map(slot=>`<div class="depth-row">
-          <div><span class="depth-pos-badge">${slot.label}</span></div>
-          <div>${mkSel(slot.key,0)}</div>
-          <div>${mkSel(slot.key,1)}</div>
-          <div>${mkSel(slot.key,2)}</div>
-        </div>`).join('')}
+        ${slots.map(slot=>{
+          const starterEmpty=!(S.depthChart[slot.key]||['','',''])[0];
+          return `<div class="depth-row${starterEmpty?' depth-row-need':''}">
+            <div><span class="depth-pos-badge${starterEmpty?' depth-pos-need':''}">${slot.label}</span></div>
+            <div>${mkSel(slot.key,0)}</div>
+            <div>${mkSel(slot.key,1)}</div>
+            <div>${mkSel(slot.key,2)}</div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   });
@@ -4143,6 +4164,7 @@ function updateDepthSlot(key,idx,val){
   if(!S.depthChart[key]) S.depthChart[key]=['','',''];
   S.depthChart[key][idx]=val;
   save('dh_depthChart',S.depthChart);
+  if(idx===0) renderDepthChart(); // re-render only when a starter slot changes (updates banner + highlights)
 }
 
 function renderComparison(){
