@@ -3172,7 +3172,16 @@ function renderPlayerList(){
 }
 
 function updatePlayerRole(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.role=val;save('dh_players',S.players);renderPlayerList();renderDevCharts();} }
-function removePlayer(id){ if(!confirm('Remove this player from the roster?')) return; S.players=S.players.filter(p=>p.id!==id); save('dh_players',S.players); renderPlayerList(); renderDevCharts(); }
+function removePlayer(id){
+  if(!confirm('Remove this player from the roster?')) return;
+  S.players=S.players.filter(p=>p.id!==id);
+  // Clean any depth chart slots referencing this player
+  Object.keys(S.depthChart).forEach(key=>{
+    S.depthChart[key]=S.depthChart[key].map(v=>String(v)===String(id)?'':v);
+  });
+  save('dh_players',S.players); save('dh_depthChart',S.depthChart);
+  renderPlayerList(); renderDevCharts();
+}
 function updatePlayerOVR(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.overall=int(val)||null;save('dh_players',S.players);renderDevStats();renderDevCharts();} }
 function togglePlayerDiamond(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.isDiamond=val;save('dh_players',S.players);renderDevStats();renderDevCharts();} }
 function updatePlayerArc(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.arcNotes=val;save('dh_players',S.players);} }
@@ -4081,7 +4090,7 @@ function renderDepthChart(){
     return;
   }
   DEPTH_CHART_SLOTS.forEach(s=>{ if(!S.depthChart[s.key]) S.depthChart[s.key]=['','','']; });
-  const sorted=[...S.players].sort((a,b)=>(b.overall||0)-(a.overall||0));
+  const sorted=[...S.players].filter(p=>!p.isPipeline).sort((a,b)=>(b.overall||0)-(a.overall||0));
   const mkSel=(key,idx)=>{
     const val=String((S.depthChart[key]||['','',''])[idx]||'');
     const opts='<option value="">— Empty —</option>'+sorted.map(p=>`<option value="${p.id}"${String(p.id)===val?' selected':''}>${esc(p.name)} (${esc(p.pos||'?')} · ${p.overall||'—'})</option>`).join('');
