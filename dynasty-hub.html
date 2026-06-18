@@ -3535,8 +3535,16 @@ function buildRecapText(data){
         if(parts.length) lines.push(`  Def: ${parts.join(' · ')}`);
       }
       ps.forEach(p=>{
-        const pos=(p.pos||p.position)?` (${p.pos||p.position})`:'';
-        lines.push(`  ${p.name}${pos}: ${p.stats||'—'}`);
+        const pos=p.pos?` (${p.pos})`:'';
+        let statLine='—';
+        if(p.stats&&typeof p.stats==='object'){
+          const set=getStatSet(p.pos)||[];
+          const parts=set.filter(f=>p.stats[f.key]).map(f=>`${p.stats[f.key]} ${f.lbl}`);
+          if(parts.length) statLine=parts.join(' · ');
+        } else if(typeof p.stats==='string'&&p.stats){
+          statLine=p.stats; // legacy free-text fallback
+        }
+        lines.push(`  ${p.name}${pos}: ${statLine}`);
       });
       aw.forEach(a=>lines.push(`  🏅 ${a.name}: ${a.award||'—'}`));
       lines.push('');
