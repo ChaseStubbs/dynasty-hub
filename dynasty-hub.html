@@ -249,6 +249,20 @@ body > * { position: relative; z-index: 1; }
 .cmp-winner { color:var(--gold) !important; }
 .cmp-empty { text-align:center; padding:24px; color:var(--text3); font-size:0.82rem; }
 
+/* ─── PLAYER COMPARISON ─── */
+.pc-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.pc-card {
+  background:var(--surface2); border:1px solid var(--border2);
+  border-radius:10px; padding:16px; position:relative; overflow:hidden;
+}
+.pc-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.pc-card.side-a::before { background:linear-gradient(90deg,var(--red),transparent); }
+.pc-card.side-b::before { background:linear-gradient(90deg,var(--purple),transparent); }
+.pc-player-name { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1.5px; color:#fff; line-height:1; margin-bottom:4px; }
+.pc-player-meta { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+.pc-season-badge { font-size:0.65rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; background:var(--surface3); border:1px solid var(--border2); border-radius:4px; padding:2px 7px; color:var(--text3); }
+.pc-stat-line { font-size:0.82rem; color:var(--text2); line-height:1.7; white-space:pre-wrap; }
+
 /* ─── STORYLINES ─── */
 .storyline-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; border-left:3px solid var(--red); transition:border-color .15s; }
 .storyline-card:hover { border-color:var(--border2); }
@@ -1145,6 +1159,31 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     <div id="cmpResult"></div>
   </div>
 
+  <!-- PLAYER COMPARISON -->
+  <div class="card card-accent-purple">
+    <div class="cmp-header">
+      <div>
+        <div class="card-label" style="margin-bottom:2px;">👤 Player Comparison</div>
+        <div class="card-sub">Compare any two players from any season side by side.</div>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:14px;">
+      <div class="form-group">
+        <label>Player A</label>
+        <select id="pcPlayerA" onchange="renderPlayerComparison()">
+          <option value="">— Select player —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Player B</label>
+        <select id="pcPlayerB" onchange="renderPlayerComparison()">
+          <option value="">— Select player —</option>
+        </select>
+      </div>
+    </div>
+    <div id="pcResult"></div>
+  </div>
+
 </div>
 
 <!-- SHARE A MOMENT MODAL -->
@@ -1887,8 +1926,9 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
           <p><strong>This Week's Matchup</strong> is a broadcast-style reference card at the top of the Analysis tab. Enter your upcoming opponent's name, ranking, record, and key stats — the card renders a live side-by-side panel with your season averages on the left and theirs on the right.</p>
           <p>Green highlights show which side has the edge on each stat. It's designed to stay open on a second monitor or phone while you're recording or playing — quick reference without leaving the game.</p>
           <div class="help-tip"><strong>Tip:</strong> If you've filled out Team Offense and Defense in the Stats tab, your numbers populate automatically. The opponent fields are manual — look up their stats in-game or on the dynasty screen.</div>
-          <p><strong>Season Comparison</strong> lets you compare any two archived seasons side by side using ESPN-style mirrored bars. Offense and defense stats are shown with gold highlights on the better value per row.</p>
+          <p><strong>Season Comparison</strong> lets you compare any two archived seasons side by side using ESPN-style mirrored bars. Offense and defense stats are shown with gold highlights on the better value per row. Rows where neither season has data are automatically hidden.</p>
           <p>Season Comparison unlocks once you've archived at least one season. Use the End of Season button in Game Log to archive.</p>
+          <p><strong>Player Comparison</strong> lets you pick any two players from any season — current or archived — and see their stat lines side by side. Players are added via the Stats tab. Once added, they appear in both dropdowns labeled by name, position, and season.</p>
         </div>
       </div>
 
@@ -3625,6 +3665,7 @@ function loadAnalysisTab(){
   }
   renderMatchupCard();
   populateCompareDropdowns();
+  populatePlayerCompareDropdowns();
 }
 
 function saveMatchup(){
@@ -3720,6 +3761,78 @@ function populateCompareDropdowns(){
   renderComparison();
 }
 
+/* ─ PLAYER COMPARISON ─ */
+function getAllPlayers(){
+  // Returns [{seasonLabel, seasonNum, player}] across current + archived seasons
+  const list=[];
+  (S.seasonStats.players||[]).forEach(p=>{
+    list.push({seasonLabel:'Season '+S.season+' (current)', seasonNum:'current', player:p});
+  });
+  (S.seasons||[]).forEach(s=>{
+    const players=(s.seasonStats&&s.seasonStats.players)||[];
+    players.forEach(p=>{
+      list.push({seasonLabel:'Season '+s.seasonNum+(s.team?' · '+s.team:''), seasonNum:s.seasonNum, player:p});
+    });
+  });
+  return list;
+}
+
+function populatePlayerCompareDropdowns(){
+  const selA=document.getElementById('pcPlayerA');
+  const selB=document.getElementById('pcPlayerB');
+  if(!selA||!selB) return;
+  const all=getAllPlayers();
+  const prevA=selA.value, prevB=selB.value;
+  const blankOpt='<option value="">— Select player —</option>';
+  if(!all.length){
+    selA.innerHTML=blankOpt; selB.innerHTML=blankOpt;
+    document.getElementById('pcResult').innerHTML='<div class="cmp-empty">Add players in the Stats tab to use Player Comparison.</div>';
+    return;
+  }
+  const opts=all.map((item,i)=>{
+    const label=`${item.player.name||'Player'}${item.player.pos?' ('+item.player.pos+')':''} — ${item.seasonLabel}`;
+    return `<option value="${i}">${esc(label)}</option>`;
+  });
+  selA.innerHTML=blankOpt+opts.join('');
+  selB.innerHTML=blankOpt+opts.join('');
+  // Restore previous selections if still valid
+  if(prevA&&selA.querySelector(`option[value="${prevA}"]`)) selA.value=prevA;
+  if(prevB&&selB.querySelector(`option[value="${prevB}"]`)) selB.value=prevB;
+  renderPlayerComparison();
+}
+
+function renderPlayerComparison(){
+  const selA=document.getElementById('pcPlayerA');
+  const selB=document.getElementById('pcPlayerB');
+  const el=document.getElementById('pcResult'); if(!el||!selA||!selB) return;
+  if(!selA.value||!selB.value){
+    el.innerHTML='<div class="cmp-empty">Select two players to compare.</div>';
+    return;
+  }
+  if(selA.value===selB.value){
+    el.innerHTML='<div class="cmp-empty">Select two different players to compare.</div>';
+    return;
+  }
+  const all=getAllPlayers();
+  const iA=parseInt(selA.value), iB=parseInt(selB.value);
+  const itemA=all[iA], itemB=all[iB];
+  if(!itemA||!itemB){ el.innerHTML='<div class="cmp-empty">Could not load player data.</div>'; return; }
+
+  function playerCard(item, side){
+    const p=item.player;
+    const posBadge=p.pos?`<span class="pc-season-badge">${esc(p.pos)}</span>`:'';
+    const yearBadge=p.year?`<span class="pc-season-badge">${esc(p.year)}</span>`:'';
+    const seasonBadge=`<span class="pc-season-badge">${esc(item.seasonLabel)}</span>`;
+    return `<div class="pc-card side-${side}">
+      <div class="pc-player-name">${esc(p.name||'Unknown')}</div>
+      <div class="pc-player-meta">${posBadge}${yearBadge}${seasonBadge}</div>
+      ${p.stats?`<div class="pc-stat-line">${esc(p.stats)}</div>`:'<div style="font-size:0.78rem;color:var(--text3);">No stats logged.</div>'}
+    </div>`;
+  }
+
+  el.innerHTML=`<div class="pc-grid">${playerCard(itemA,'a')}${playerCard(itemB,'b')}</div>`;
+}
+
 function renderComparison(){
   const selA=document.getElementById('cmpSeasonA');
   const selB=document.getElementById('cmpSeasonB');
@@ -3741,9 +3854,10 @@ function renderComparison(){
   document.getElementById('cmpLegendB').textContent=dB.label;
 
   function makeRows(fields, oA, oB){
-    return fields.map(f=>{
+    const rows=fields.map(f=>{
       const vA=parseFloat(oA[f.key])||0;
       const vB=parseFloat(oB[f.key])||0;
+      if(!vA&&!vB) return ''; // suppress rows with no data on either side
       const max=Math.max(vA,vB,0.01);
       const pctA=Math.round((vA/max)*100);
       const pctB=Math.round((vB/max)*100);
@@ -3762,6 +3876,7 @@ function renderComparison(){
         </div>
       </div>`;
     }).join('');
+    return rows||`<div style="font-size:0.76rem;color:var(--text3);padding:8px 0;text-align:center;">No stats entered for this section.</div>`;
   }
 
   el.innerHTML=`
@@ -3833,6 +3948,7 @@ function savePlayerStat(){
   else S.seasonStats.players.push(entry);
   save('dh_seasonStats',S.seasonStats);
   renderPlayerStats();
+  populatePlayerCompareDropdowns();
   closeModal('playerStatModal');
 }
 function deletePlayerStat(i){
@@ -3840,6 +3956,7 @@ function deletePlayerStat(i){
   S.seasonStats.players.splice(i,1);
   save('dh_seasonStats',S.seasonStats);
   renderPlayerStats();
+  populatePlayerCompareDropdowns();
 }
 function renderAwards(){
   const el=document.getElementById('awardList'); if(!el) return;
