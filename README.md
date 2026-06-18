@@ -33,12 +33,13 @@ Your dynasty data is saved in your **browser's local storage** — it stays on y
 - 🎬 Episode Planner — plan and archive recording sessions with auto episode counter
 - 📖 Storyline Tracker — manage active, dormant, and resolved narrative arcs
 - 🏈 Game Log — log results, season schedule, Heisman watch
-- 📊 Season Stats — team offense/defense, player stats, awards & honors
-- 📈 Analysis — This Week's Matchup card (broadcast-style opponent reference) + Season Comparison tool
-- ⭐ Recruiting Board — track targets, NIL spend, class overview and charts
-- 🚪 Transfer Portal — separate portal board with NIL tracking
+- 📊 Season Stats — team offense/defense, position-specific player stats, awards & honors
+- 📈 Analysis — This Week's Matchup card, Season Comparison, and Player Comparison tool
+- ⭐ Recruiting Board — track targets, NIL spend, class overview and charts; push committed players directly to Dev mid-season
+- 🚪 Transfer Portal — separate portal board with NIL tracking and mid-season Dev push
 - 🏛 Program / Blueprint — NIL budget, facilities, coaching staff
-- 💎 Player Development — roster progression, NIL demands, class finalization
+- 💎 Player Development — roster progression with Prospect Pipeline, source badges, OVR history, NIL demands, class finalization
+- 🗂 Depth Chart — 3-deep manual depth chart (Offense / Defense / Special Teams), pulls from Dev roster
 - 📰 Universe / News — dynasty news feed and AD goals
 - 🎨 Team Colors + Logo — 130+ FBS team color presets, custom logo upload; team color themes the entire UI
 - 📋 Season Recap — one-click formatted recap for YouTube descriptions and posts
