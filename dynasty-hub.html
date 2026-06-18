@@ -716,6 +716,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .player-card:hover { border-color:var(--border2); }
 .player-card.is-diamond  { border-left:3px solid var(--gold); }
 .player-card.is-breakout { border-left:3px solid var(--red);   box-shadow:0 0 18px var(--red-ultra-dim); }
+.player-card.pipeline-card { border-left:3px solid var(--gold); background:rgba(245,158,11,0.04); }
 .player-card.is-legend   { border-left:3px solid var(--purple);box-shadow:0 0 18px rgba(167,139,250,0.07); }
 .player-card-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
 .player-card-name { font-weight:800;font-size:0.9rem;color:var(--text); }
@@ -2705,7 +2706,7 @@ function confirmDevPush(id,isPortal){
     recruitedAs:r.stars||0, isDiamond:!!r.isDiamond, isTransfer:!!isPortal,
     year:'FR', overall:ovr, role:'buried', arcNotes:'',
     overallHistory:ovr?[{label:'Enrolled',val:ovr}]:[],
-    breakouts:[], recruitId:id, nilDP:int(r.nilDP)||0
+    breakouts:[], recruitId:id, nilDP:int(r.nilDP)||0, isPipeline:true
   });
   r.pushedToDev=true;
   save('dh_players',S.players);
@@ -3084,25 +3085,35 @@ function renderPlayerList(){
   if(devFilter==='diamonds') list=list.filter(p=>p.isDiamond);
   else if(['FR','SO','JR','SR','SR+'].includes(devFilter)) list=list.filter(p=>p.year===devFilter);
   if(!list.length){ el.innerHTML=`<div class="empty-state">${S.players.length?'No players match this filter.':'No players tracked yet.<br>Use <strong>Finalize Class</strong> to import signed recruits, or add players manually.'}</div>`; return; }
-  el.innerHTML=list.map(p=>{
+  const pipeline=list.filter(p=>p.isPipeline);
+  const roster=list.filter(p=>!p.isPipeline);
+  const srcBadge=(p)=>{
+    if(!p.recruitId) return '<span style="font-size:0.67rem;padding:1px 6px;border-radius:4px;background:var(--surface3);color:var(--text3);font-weight:600;letter-spacing:.04em;">Manual</span>';
+    if(p.isTransfer) return '<span style="font-size:0.67rem;padding:1px 6px;border-radius:4px;background:rgba(59,130,246,0.18);color:#60a5fa;font-weight:600;letter-spacing:.04em;">Portal</span>';
+    return '<span style="font-size:0.67rem;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,0.15);color:#4ade80;font-weight:600;letter-spacing:.04em;">Recruit</span>';
+  };
+  const mkCard=(p,inPipeline)=>{
     const oc=ovrClass(p.overall);
     const isBreakout=p.role==='breakout', isLegend=p.role==='legend';
     const stars=p.recruitedAs>0?'⭐'.repeat(p.recruitedAs):'Walk-on';
-    return `<div class="player-card${p.isDiamond?' is-diamond':''}${isBreakout?' is-breakout':''}${isLegend?' is-legend':''}">
+    return `<div class="player-card${p.isDiamond?' is-diamond':''}${isBreakout?' is-breakout':''}${isLegend?' is-legend':''}${inPipeline?' pipeline-card':''}">
       <div class="player-card-header">
         <div class="ovr-badge ovr-${oc}">${p.overall||'—'}</div>
         <div style="flex:1;min-width:0;">
-          <div class="player-card-name">${esc(p.name)}${p.isDiamond?' <span title="Diamond in the Rough">💎</span>':''}${p.isTransfer?'<span class="transfer-badge" style="margin-left:4px;">Portal</span>':''}</div>
+          <div class="player-card-name">${esc(p.name)}${p.isDiamond?' <span title="Diamond in the Rough">💎</span>':''}</div>
           <div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap;">
             <span class="year-badge ${yearClass(p.year)}">${p.year}</span>
             <span style="font-size:0.72rem;color:var(--text3);">${esc(p.pos||'')}</span>
-            <span style="font-size:0.72rem;color:var(--text3);">${stars} Recruited</span>
-            <span class="role-${p.role||'buried'}" style="font-size:0.72rem;font-weight:700;">${roleLabel(p.role)}</span>
+            <span style="font-size:0.72rem;color:var(--text3);">${stars}</span>
+            ${srcBadge(p)}
+            ${!inPipeline?`<span class="role-${p.role||'buried'}" style="font-size:0.72rem;font-weight:700;">${roleLabel(p.role)}</span>`:''}
           </div>
         </div>
-        <select style="font-size:0.7rem;padding:4px 8px;background:var(--surface3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);cursor:pointer;flex-shrink:0;" onchange="updatePlayerRole(${p.id},this.value)">
-          ${['buried','depth','emerging','starter','breakout','legend'].map(r=>`<option value="${r}"${p.role===r?' selected':''}>${roleLabel(r)}</option>`).join('')}
-        </select>
+        ${inPipeline
+          ? `<button class="btn btn-ghost btn-sm" onclick="enrollPlayer(${p.id})" title="Move to Active Roster" style="font-size:0.72rem;color:var(--gold);border-color:var(--gold);">Enroll →</button>`
+          : `<select style="font-size:0.7rem;padding:4px 8px;background:var(--surface3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);cursor:pointer;flex-shrink:0;" onchange="updatePlayerRole(${p.id},this.value)">
+              ${['buried','depth','emerging','starter','breakout','legend'].map(r=>`<option value="${r}"${p.role===r?' selected':''}>${roleLabel(r)}</option>`).join('')}
+            </select>`}
         <button class="btn btn-danger btn-sm" onclick="removePlayer(${p.id})">✕</button>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
@@ -3120,7 +3131,20 @@ function renderPlayerList(){
         ${p.breakouts&&p.breakouts.length?`<div class="breakout-log">${p.breakouts.map(b=>`<div class="breakout-entry">⚡ ${esc(b.text)}${b.season?` <span style="color:var(--text3);font-size:0.68rem;">S${esc(b.season)}</span>`:''}</div>`).join('')}</div>`:''}
       </div>
     </div>`;
-  }).join('');
+  };
+  let html='';
+  if(pipeline.length){
+    html+=`<div style="font-size:0.72rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+      <span>⏳ Prospect Pipeline</span><span style="font-size:0.68rem;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">Committed — not yet enrolled. Hit Enroll → to move to Active Roster.</span>
+    </div>`;
+    html+=pipeline.map(p=>mkCard(p,true)).join('');
+    if(roster.length) html+=`<div style="height:1px;background:var(--border2);margin:16px 0;"></div>`;
+  }
+  if(roster.length){
+    if(pipeline.length) html+=`<div style="font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;">Active Roster</div>`;
+    html+=roster.map(p=>mkCard(p,false)).join('');
+  }
+  el.innerHTML=html;
 }
 
 function updatePlayerRole(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.role=val;save('dh_players',S.players);renderPlayerList();renderDevCharts();} }
@@ -3128,6 +3152,7 @@ function removePlayer(id){ if(!confirm('Remove this player from the roster?')) r
 function updatePlayerOVR(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.overall=int(val)||null;save('dh_players',S.players);renderDevStats();renderDevCharts();} }
 function togglePlayerDiamond(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.isDiamond=val;save('dh_players',S.players);renderDevStats();renderDevCharts();} }
 function updatePlayerArc(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.arcNotes=val;save('dh_players',S.players);} }
+function enrollPlayer(id){ const p=S.players.find(x=>x.id===id); if(p){p.isPipeline=false;save('dh_players',S.players);renderPlayerList();renderDevCharts();} }
 
 function addOVRHistory(id){
   const p=S.players.find(x=>x.id===id); if(!p) return;
@@ -3200,7 +3225,9 @@ function confirmFinalize(){
   const portalToMove=signedPortal.filter(p=>{ const cb=document.getElementById('fin_'+p.id); return cb&&cb.checked; });
   if(!toMove.length&&!portalToMove.length){ closeModal('finalizeModal'); return; }
   [...toMove,...portalToMove].forEach(r=>{
-    const alreadyInDev=S.players.some(p=>p.recruitId===r.id);
+    const existingDev=S.players.find(p=>p.recruitId===r.id);
+    const alreadyInDev=!!existingDev;
+    if(existingDev) existingDev.isPipeline=false;
     if(!alreadyInDev){
       const ovrEl=document.getElementById('fin_ovr_'+r.id);
       const ovr=ovrEl?int(ovrEl.value)||null:null;
