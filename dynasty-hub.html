@@ -717,6 +717,16 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .player-card.is-diamond  { border-left:3px solid var(--gold); }
 .player-card.is-breakout { border-left:3px solid var(--red);   box-shadow:0 0 18px var(--red-ultra-dim); }
 .player-card.pipeline-card { border-left:3px solid var(--gold); background:rgba(245,158,11,0.04); }
+.depth-group-header { font-family:'Bebas Neue',cursive; font-size:1.05rem; letter-spacing:2.5px; color:var(--red); margin-bottom:8px; padding-bottom:7px; border-bottom:1px solid var(--border2); }
+.depth-table { display:flex; flex-direction:column; gap:1px; margin-bottom:4px; }
+.depth-header-row,.depth-row { display:grid; grid-template-columns:58px 1fr 1fr 1fr; gap:8px; align-items:center; padding:5px 6px; border-radius:6px; }
+.depth-header-row { padding-bottom:3px; }
+.depth-row:nth-child(even) { background:var(--surface3); }
+.depth-col-label { font-size:0.67rem; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+.depth-pos-badge { font-family:'Bebas Neue',cursive; font-size:0.88rem; letter-spacing:1.5px; color:var(--text); background:var(--surface3); border:1px solid var(--border2); border-radius:5px; padding:2px 9px; display:inline-block; white-space:nowrap; }
+.depth-sel { width:100%; font-size:0.78rem; padding:5px 8px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; color:var(--text2); cursor:pointer; transition:border-color .15s; }
+.depth-sel:focus { border-color:var(--red-border); outline:none; }
+.depth-sel:not([value=""]) { color:var(--text); }
 .player-card.is-legend   { border-left:3px solid var(--purple);box-shadow:0 0 18px rgba(167,139,250,0.07); }
 .player-card-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
 .player-card-name { font-weight:800;font-size:0.9rem;color:var(--text); }
@@ -779,6 +789,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   <button class="tab-btn" onclick="switchTab('portal',this)">🚪 Portal</button>
   <button class="tab-btn" onclick="switchTab('universe',this)">📰 Universe</button>
   <button class="tab-btn" onclick="switchTab('devtab',this)">💎 Development</button>
+  <button class="tab-btn" onclick="switchTab('depthchart',this)">🗂 Depth Chart</button>
 </div>
 
 <div class="content">
@@ -1499,6 +1510,17 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
 </div>
 
+<!-- ══════════════════════════════════════ DEPTH CHART -->
+<div id="tab-depthchart" class="tab-panel">
+  <div class="card card-accent-red">
+    <div class="flex-between" style="margin-bottom:20px;">
+      <div class="card-label" style="margin-bottom:0;">🗂 Depth Chart</div>
+      <span style="font-size:0.78rem;color:var(--text3);">Pulls from your 💎 Development roster — add players there first.</span>
+    </div>
+    <div id="depthChartContent"><div class="empty-state">Switch to this tab to load your depth chart.</div></div>
+  </div>
+</div>
+
 </div>
 
 <!-- ══════════════════════════════════════ MODALS -->
@@ -2031,6 +2053,7 @@ const S = {
   seasonStats:     jp(ls('dh_seasonStats')     || '{"offense":{},"defense":{},"players":[],"awards":[]}'),
   episodeCounter:  int(ls('dh_episodeCounter') || '1'),
   matchup:         jp(ls('dh_matchup')         || '{}'),
+  depthChart:      jp(ls('dh_depthChart')      || '{}'),
 };
 
 function ls(k){ return localStorage.getItem(k); }
@@ -2057,6 +2080,7 @@ function switchTab(name,btn){
   if(name==='devtab')     { renderPlayerList(); renderNilDemands(); setTimeout(renderDevCharts,60); }
   if(name==='statstab')   loadStatsTab();
   if(name==='analysis')   loadAnalysisTab();
+  if(name==='depthchart') renderDepthChart();
 }
 
 // ════════════════════════════════════════ TEAM COLORS
@@ -4023,6 +4047,77 @@ function renderPlayerComparison(){
   }
 }
 
+// ════════════════════════════════════════ DEPTH CHART
+const DEPTH_CHART_SLOTS=[
+  {key:'QB',   label:'QB',  group:'OFFENSE'},
+  {key:'HB',   label:'HB',  group:'OFFENSE'},
+  {key:'WR1',  label:'WR',  group:'OFFENSE'},
+  {key:'WR2',  label:'WR',  group:'OFFENSE'},
+  {key:'WR3',  label:'WR',  group:'OFFENSE'},
+  {key:'TE',   label:'TE',  group:'OFFENSE'},
+  {key:'LT',   label:'LT',  group:'OFFENSE'},
+  {key:'LG',   label:'LG',  group:'OFFENSE'},
+  {key:'C',    label:'C',   group:'OFFENSE'},
+  {key:'RG',   label:'RG',  group:'OFFENSE'},
+  {key:'RT',   label:'RT',  group:'OFFENSE'},
+  {key:'LE',   label:'LE',  group:'DEFENSE'},
+  {key:'DT1',  label:'DT',  group:'DEFENSE'},
+  {key:'DT2',  label:'DT',  group:'DEFENSE'},
+  {key:'RE',   label:'RE',  group:'DEFENSE'},
+  {key:'MLB',  label:'MLB', group:'DEFENSE'},
+  {key:'WILL', label:'WILL',group:'DEFENSE'},
+  {key:'SAM',  label:'SAM', group:'DEFENSE'},
+  {key:'LCB',  label:'LCB', group:'DEFENSE'},
+  {key:'RCB',  label:'RCB', group:'DEFENSE'},
+  {key:'FS',   label:'FS',  group:'DEFENSE'},
+  {key:'SS',   label:'SS',  group:'DEFENSE'},
+  {key:'K',    label:'K',   group:'SPECIAL TEAMS'},
+  {key:'P',    label:'P',   group:'SPECIAL TEAMS'},
+];
+function renderDepthChart(){
+  const el=document.getElementById('depthChartContent'); if(!el) return;
+  if(!S.players.length){
+    el.innerHTML='<div class="empty-state">No players on your roster yet.<br>Head to 💎 Development to add players, then come back to build your depth chart.</div>';
+    return;
+  }
+  DEPTH_CHART_SLOTS.forEach(s=>{ if(!S.depthChart[s.key]) S.depthChart[s.key]=['','','']; });
+  const sorted=[...S.players].sort((a,b)=>(b.overall||0)-(a.overall||0));
+  const mkSel=(key,idx)=>{
+    const val=String((S.depthChart[key]||['','',''])[idx]||'');
+    const opts='<option value="">— Empty —</option>'+sorted.map(p=>`<option value="${p.id}"${String(p.id)===val?' selected':''}>${esc(p.name)} (${esc(p.pos||'?')} · ${p.overall||'—'})</option>`).join('');
+    return `<select class="depth-sel" onchange="updateDepthSlot('${key}',${idx},this.value)">${opts}</select>`;
+  };
+  const groups=['OFFENSE','DEFENSE','SPECIAL TEAMS'];
+  const groupIcons={OFFENSE:'⚡',DEFENSE:'🛡',['SPECIAL TEAMS']:'🦵'};
+  let html='';
+  groups.forEach(grp=>{
+    const slots=DEPTH_CHART_SLOTS.filter(s=>s.group===grp);
+    html+=`<div style="margin-bottom:24px;">
+      <div class="depth-group-header">${groupIcons[grp]} ${grp}</div>
+      <div class="depth-table">
+        <div class="depth-header-row">
+          <div></div>
+          <div class="depth-col-label">#1 Starter</div>
+          <div class="depth-col-label">#2 Backup</div>
+          <div class="depth-col-label">#3</div>
+        </div>
+        ${slots.map(slot=>`<div class="depth-row">
+          <div><span class="depth-pos-badge">${slot.label}</span></div>
+          <div>${mkSel(slot.key,0)}</div>
+          <div>${mkSel(slot.key,1)}</div>
+          <div>${mkSel(slot.key,2)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+function updateDepthSlot(key,idx,val){
+  if(!S.depthChart[key]) S.depthChart[key]=['','',''];
+  S.depthChart[key][idx]=val;
+  save('dh_depthChart',S.depthChart);
+}
+
 function renderComparison(){
   const selA=document.getElementById('cmpSeasonA');
   const selB=document.getElementById('cmpSeasonB');
@@ -4224,7 +4319,7 @@ function checkExportGlow(){
 
 // ════════════════════════════════════════ EXPORT / IMPORT
 function exportData(){
-  const keys=['team','season','conf','rank','teamColor','episode','games','recruits','portal','nilDemands','storylines','news','adGoals','blueprint','facilities','staff','heisman','players','schedule','seasons','episodeHistory','seasonStats','episodeCounter','matchup'];
+  const keys=['team','season','conf','rank','teamColor','episode','games','recruits','portal','nilDemands','storylines','news','adGoals','blueprint','facilities','staff','heisman','players','schedule','seasons','episodeHistory','seasonStats','episodeCounter','matchup','depthChart'];
   const data={_version:1,_exported:new Date().toISOString(),_dynasty:S.team};
   keys.forEach(k=>{ const v=localStorage.getItem('dh_'+k); if(v!==null) data['dh_'+k]=v; });
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});

@@ -22,6 +22,11 @@
 18. **Team color drives full UI** — 8 CSS variables derived from team color; all accent colors, glows, badges, and Chart.js lines update when team color changes
 19. **Background grain texture** — Subtle CSS-only SVG noise overlay for broadcast/print feel
 20. **📈 Analysis tab** — This Week's Matchup card (broadcast-style side-by-side opponent reference, auto-fills from schedule, persisted) and Season Comparison (ESPN-style mirrored stat bars across any two archived seasons)
+21. **Player Comparison** — side-by-side stat comparison in Analysis tab; same-position mirrored bars, cross-position stat pill cards
+22. **Position-specific player stats** — structured stat fields per position group (QB, RB, WR, TE, OL, DE/DL, LB, CB, S, K, P) replacing free-text entry
+23. **→ Dev push from boards** — per-player button on committed/signed recruits and portal targets to push directly to Development tab mid-season; inline OVR input; duplicate guard in Finalize Class
+24. **Prospect Pipeline** — pushed players appear in a separate Pipeline section in Dev tab with Enroll → button; source badges (Recruit / Portal / Manual) on every player card
+25. **🗂 Depth Chart tab** — dedicated tab with 3-deep manual dropdown depth chart; Offense / Defense / Special Teams sections; pulls from Dev roster; fully persisted
 
 ---
 
