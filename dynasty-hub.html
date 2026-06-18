@@ -1877,7 +1877,8 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
           <p>Track every prospect on your board. Statuses run: <strong>Target → Offered → Visited → Verbal → Committed → Signed → Flipped</strong>. Update status inline from the dropdown on each row.</p>
           <p><strong>NIL Offer (DP):</strong> Enter how many Dynasty Points you're offering. These feed directly into the Blueprint DP budget under "Recruit NIL."</p>
           <p><strong>💎 Diamond in the Rough:</strong> Flag low-star recruits you believe will outperform their rating. They show in the Diamond Finder scatter chart in Player Development.</p>
-          <p><strong>Finalize Class:</strong> When your recruits are Signed and you're ready to move them to your roster, click <strong>🎓 Finalize Class</strong> in the Development tab. Set a starting OVR and they move to Player Development. Their NIL spend stays in the budget.</p>
+          <p><strong>→ Dev (mid-season push):</strong> Once a recruit is <strong>Committed</strong> or <strong>Signed</strong> in-game, a green <strong>→ Dev</strong> button appears on their card. Click it, enter a starting OVR, and they move straight to the Prospect Pipeline in Player Development — no need to wait for end-of-season Finalize Class. They stay on the recruiting board until Finalize Class cleans them up.</p>
+          <p><strong>Finalize Class:</strong> At season's end, click <strong>🎓 Finalize Class</strong> in the Development tab. Players already pushed via → Dev are skipped automatically (no duplicates) and removed from the board.</p>
           <div class="help-tip"><strong>Tip:</strong> Transfer portal targets live on the separate Portal tab — not here. Keep high school recruits on this board.</div>
         </div>
       </div>
@@ -1890,7 +1891,8 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
         <div class="help-section-body">
           <p>The Portal board is entirely separate from recruiting. Use it to track players you're pursuing through the transfer portal.</p>
           <p>Set the <strong>Window</strong> (Winter or Summer) to keep portal cycles organized. Filter the board by window, active targets, signed, or lost.</p>
-          <p>Portal targets you sign appear in <strong>🎓 Finalize Class</strong> under a separate "Portal Transfers" section alongside your recruiting class.</p>
+          <p>Once a portal target is <strong>Committed</strong> or <strong>Signed</strong>, a green <strong>→ Dev</strong> button appears on their card — same as recruiting. Click it to push them directly to the Prospect Pipeline in Player Development mid-season.</p>
+          <p>Portal targets you sign also appear in <strong>🎓 Finalize Class</strong> under a separate "Portal Transfers" section at season's end. Players already pushed via → Dev are skipped automatically.</p>
           <p>Portal NIL offers feed into the Blueprint budget under "Recruit NIL" alongside your high school offers.</p>
         </div>
       </div>
@@ -1916,11 +1918,27 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
         </div>
         <div class="help-section-body">
           <p>Your full roster lives here after players are finalized from recruiting or portal. Track OVR, role, year, and development arc for each player.</p>
+          <p><strong>Prospect Pipeline:</strong> Players pushed mid-season via the <strong>→ Dev</strong> button on the recruiting or portal boards land here first — in a gold-highlighted Pipeline section above your active roster. They're committed but not yet officially enrolled. Hit <strong>Enroll →</strong> on a pipeline card to move them to your Active Roster, or run Finalize Class at season's end to enroll everyone at once.</p>
+          <p><strong>Source badges:</strong> Every player card shows a small badge — <strong>Recruit</strong> (green), <strong>Portal</strong> (blue), or <strong>Manual</strong> (gray) — so you always know how they got on your roster.</p>
           <p><strong>OVR History:</strong> Click the chart icon on a player to log OVR snapshots over time (pre-season, mid-season, etc.) — great for showing growth arcs on the show.</p>
           <p><strong>Breakout Moments:</strong> Log specific games or moments where a player broke out. These attach to the player card as a storyline record.</p>
           <p><strong>💎 Diamond Finder chart:</strong> Scatter plot of stars recruited vs. current OVR. Players above the baseline outperformed their recruiting ranking — your true diamonds.</p>
           <p><strong>📅 Advance Year:</strong> At the end of each season, use this to bump every player up one year (FR→SO, etc.). SR+ players stay capped.</p>
           <p><strong>💸 Roster NIL Demands:</strong> Log when players demand NIL contracts. Set the demand amount and status (Pending/Accepted/Declined/Renegotiating). Accepted demands feed into the Blueprint's Roster NIL line automatically.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-header" onclick="toggleHelp(this)">
+          <div class="help-section-title"><span class="help-section-icon">🗂</span>Depth Chart</div>
+          <span class="help-chevron">▶</span>
+        </div>
+        <div class="help-section-body">
+          <p>The <strong>🗂 Depth Chart</strong> tab lets you set a 3-deep depth chart for every position — Offense, Defense, and Special Teams — using players from your Dev roster.</p>
+          <p>Each position row has three slots: <strong>#1 Starter</strong>, <strong>#2 Backup</strong>, and <strong>#3</strong>. All slots are optional — leave any blank if you haven't recruited to that depth yet. Selections save automatically.</p>
+          <p>Dropdowns are sorted by OVR (highest first) and show each player's position and OVR rating so you can make decisions quickly. <strong>Prospect Pipeline players are excluded</strong> — only enrolled roster players appear here.</p>
+          <p>If you delete a player from the Development tab, their depth chart slot clears automatically — no ghost entries.</p>
+          <div class="help-tip"><strong>Tip:</strong> Build your depth chart before recording an episode — it's a quick reference for talking through your two-deep on camera, or for planning offseason recruiting needs by position.</div>
         </div>
       </div>
 
