@@ -1222,19 +1222,28 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
 <!-- PLAYER STAT MODAL -->
 <div class="modal-overlay" id="playerStatModal">
-  <div class="modal" style="max-width:460px;">
+  <div class="modal" style="max-width:560px;">
     <div class="flex-between" style="margin-bottom:14px;">
       <h2 style="margin:0;" id="playerStatModalTitle">Add Player</h2>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('playerStatModal')">✕</button>
     </div>
     <input type="hidden" id="playerStatEditId">
-    <div class="form-group"><label>Player Name</label><input type="text" id="psName" placeholder="e.g. Marcus Allen"></div>
     <div class="form-row">
-      <div class="form-group" style="max-width:110px;"><label>Position</label><input type="text" id="psPos" placeholder="QB"></div>
-      <div class="form-group"><label>Class</label><select id="psYear"><option value="">—</option><option>Fr</option><option>So</option><option>Jr</option><option>Sr</option><option>Gr</option></select></div>
+      <div class="form-group"><label>Player Name</label><input type="text" id="psName" placeholder="e.g. Marcus Allen"></div>
+      <div class="form-group" style="max-width:150px;"><label>Position</label>
+        <select id="psPos" onchange="renderPlayerStatFields()">
+          <option value="">— Select —</option>
+          <option>QB</option><option>RB</option><option>WR</option><option>TE</option>
+          <option>OL</option><option>DE/DL</option><option>LB</option><option>CB</option>
+          <option>S</option><option>K</option><option>P</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:110px;"><label>Class</label>
+        <select id="psYear"><option value="">—</option><option>Fr</option><option>So</option><option>Jr</option><option>Sr</option><option>Gr</option></select>
+      </div>
     </div>
-    <div class="form-group"><label>Season Stats Line</label><textarea id="psStats" rows="3" placeholder="e.g. 3,241 pass yds · 31 TD · 6 INT · 68% completion&#10;or: 1,402 rush yds · 16 TD · 5.8 ypc"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:4px;">
+    <div id="psStatFields" style="margin-top:4px;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
       <button class="btn btn-accent" onclick="savePlayerStat()">Save</button>
       <button class="btn btn-ghost" onclick="closeModal('playerStatModal')">Cancel</button>
     </div>
@@ -3610,6 +3619,61 @@ function copyRecap(){
   });
 }
 
+// ════════════════════════════════════════ PLAYER STAT SETS
+const PLAYER_STAT_SETS={
+  'QB':   [{key:'passYds',lbl:'Pass Yards'},{key:'passTDs',lbl:'Pass TDs'},{key:'ints',lbl:'INTs'},{key:'compPct',lbl:'Comp %'},{key:'rushYds',lbl:'Rush Yards'},{key:'rushTDs',lbl:'Rush TDs'},{key:'rating',lbl:'QBR/Rating'}],
+  'RB':   [{key:'rushYds',lbl:'Rush Yards'},{key:'rushTDs',lbl:'Rush TDs'},{key:'ypc',lbl:'YPC'},{key:'rec',lbl:'Receptions'},{key:'recYds',lbl:'Rec Yards'},{key:'recTDs',lbl:'Rec TDs'},{key:'fum',lbl:'Fumbles'}],
+  'WR':   [{key:'rec',lbl:'Receptions'},{key:'recYds',lbl:'Rec Yards'},{key:'recTDs',lbl:'Rec TDs'},{key:'ypc',lbl:'Yds/Catch'},{key:'tgts',lbl:'Targets'},{key:'drops',lbl:'Drops'}],
+  'TE':   [{key:'rec',lbl:'Receptions'},{key:'recYds',lbl:'Rec Yards'},{key:'recTDs',lbl:'Rec TDs'},{key:'ypc',lbl:'Yds/Catch'},{key:'tgts',lbl:'Targets'}],
+  'OL':   [{key:'grade',lbl:'PFF Grade'},{key:'sacksAllowed',lbl:'Sacks Allowed'},{key:'pancakes',lbl:'Pancake Blocks'}],
+  'DE/DL':[{key:'sacks',lbl:'Sacks'},{key:'tfls',lbl:'TFLs'},{key:'tackles',lbl:'Tackles'},{key:'hurries',lbl:'Hurries'},{key:'ff',lbl:'Forced Fumbles'},{key:'fr',lbl:'Fumble Rec'}],
+  'LB':   [{key:'tackles',lbl:'Tackles'},{key:'sacks',lbl:'Sacks'},{key:'tfls',lbl:'TFLs'},{key:'ints',lbl:'INTs'},{key:'pbu',lbl:'PBUs'},{key:'ff',lbl:'Forced Fumbles'}],
+  'CB':   [{key:'tackles',lbl:'Tackles'},{key:'ints',lbl:'INTs'},{key:'pbu',lbl:'PBUs'},{key:'ff',lbl:'Forced Fumbles'},{key:'tds',lbl:'Return TDs'}],
+  'S':    [{key:'tackles',lbl:'Tackles'},{key:'ints',lbl:'INTs'},{key:'pbu',lbl:'PBUs'},{key:'ff',lbl:'Forced Fumbles'},{key:'tfls',lbl:'TFLs'}],
+  'K':    [{key:'fgm',lbl:'FG Made'},{key:'fga',lbl:'FG Att'},{key:'fgPct',lbl:'FG %'},{key:'long',lbl:'Long'},{key:'xpm',lbl:'XP Made'},{key:'xpa',lbl:'XP Att'}],
+  'P':    [{key:'punts',lbl:'Punts'},{key:'avg',lbl:'Avg'},{key:'inside20',lbl:'Inside 20'},{key:'long',lbl:'Long'}],
+  'Other':[{key:'notes',lbl:'Stats / Notes',textarea:true}],
+};
+
+function getStatSet(pos){ return PLAYER_STAT_SETS[pos]||null; }
+
+function renderPlayerStatFields(prefillData){
+  const pos=document.getElementById('psPos').value;
+  const el=document.getElementById('psStatFields'); if(!el) return;
+  const set=getStatSet(pos);
+  if(!set){ el.innerHTML='<div style="font-size:0.78rem;color:var(--text3);padding:8px 0;">Select a position to see stat fields.</div>'; return; }
+  const data=prefillData||{};
+  if(set.length===1&&set[0].textarea){
+    el.innerHTML=`<div class="form-group"><label>${set[0].lbl}</label><textarea id="psf_${set[0].key}" rows="3" placeholder="Any relevant stats or notes...">${esc(data[set[0].key]||'')}</textarea></div>`;
+  } else {
+    const rows=[];
+    for(let i=0;i<set.length;i+=3){
+      const chunk=set.slice(i,i+3);
+      rows.push(`<div class="form-row">${chunk.map(f=>`<div class="form-group"><label>${f.lbl}</label><input type="text" id="psf_${f.key}" placeholder="—" value="${esc(data[f.key]||'')}"></div>`).join('')}</div>`);
+    }
+    el.innerHTML=rows.join('');
+  }
+}
+
+function collectPlayerStatFields(){
+  const pos=document.getElementById('psPos').value;
+  const set=getStatSet(pos); if(!set) return {};
+  const data={};
+  set.forEach(f=>{ const el=document.getElementById('psf_'+f.key); if(el) data[f.key]=el.value.trim(); });
+  return data;
+}
+
+function formatPlayerStatsDisplay(pos, stats){
+  if(!stats||typeof stats==='string') return stats?`<div style="font-size:0.82rem;color:var(--text2);white-space:pre-wrap;">${esc(stats)}</div>`:'';
+  const set=getStatSet(pos);
+  if(!set) return '';
+  // "Other" position — just show notes
+  if(set.length===1&&set[0].textarea) return stats.notes?`<div style="font-size:0.82rem;color:var(--text2);line-height:1.6;">${esc(stats.notes)}</div>`:'';
+  const filled=set.filter(f=>stats[f.key]);
+  if(!filled.length) return '';
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">${filled.map(f=>`<div style="background:var(--surface3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:1px;color:#fff;">${esc(stats[f.key])}</div><div style="font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:2px;">${f.lbl}</div></div>`).join('')}</div>`;
+}
+
 // ════════════════════════════════════════ SEASON STATS
 const OFFENSE_FIELDS=[
   {id:'st-ppg',  key:'ppg',   label:'Points/G'},
@@ -3817,20 +3881,60 @@ function renderPlayerComparison(){
   const iA=parseInt(selA.value), iB=parseInt(selB.value);
   const itemA=all[iA], itemB=all[iB];
   if(!itemA||!itemB){ el.innerHTML='<div class="cmp-empty">Could not load player data.</div>'; return; }
+  const pA=itemA.player, pB=itemB.player;
+  const statsA=typeof pA.stats==='object'?pA.stats:{};
+  const statsB=typeof pB.stats==='object'?pB.stats:{};
+  const setA=getStatSet(pA.pos), setB=getStatSet(pB.pos);
 
-  function playerCard(item, side){
+  // Header cards side by side
+  function headerCard(item, side, colorClass){
     const p=item.player;
-    const posBadge=p.pos?`<span class="pc-season-badge">${esc(p.pos)}</span>`:'';
-    const yearBadge=p.year?`<span class="pc-season-badge">${esc(p.year)}</span>`:'';
-    const seasonBadge=`<span class="pc-season-badge">${esc(item.seasonLabel)}</span>`;
-    return `<div class="pc-card side-${side}">
+    return `<div class="pc-card side-${side}" style="margin-bottom:12px;">
       <div class="pc-player-name">${esc(p.name||'Unknown')}</div>
-      <div class="pc-player-meta">${posBadge}${yearBadge}${seasonBadge}</div>
-      ${p.stats?`<div class="pc-stat-line">${esc(p.stats)}</div>`:'<div style="font-size:0.78rem;color:var(--text3);">No stats logged.</div>'}
+      <div class="pc-player-meta">
+        ${p.pos?`<span class="pc-season-badge">${esc(p.pos)}</span>`:''}
+        ${p.year?`<span class="pc-season-badge">${esc(p.year)}</span>`:''}
+        <span class="pc-season-badge">${esc(item.seasonLabel)}</span>
+      </div>
     </div>`;
   }
 
-  el.innerHTML=`<div class="pc-grid">${playerCard(itemA,'a')}${playerCard(itemB,'b')}</div>`;
+  // If same position — do structured field-by-field bar comparison
+  if(pA.pos && pA.pos===pB.pos && setA && !(setA.length===1&&setA[0].textarea)){
+    const rows=setA.map(f=>{
+      const vA=parseFloat(statsA[f.key])||0;
+      const vB=parseFloat(statsB[f.key])||0;
+      if(!vA&&!vB) return '';
+      const max=Math.max(vA,vB,0.01);
+      const pctA=Math.round((vA/max)*100);
+      const pctB=Math.round((vB/max)*100);
+      const aWins=vA>vB, bWins=vB>vA;
+      return `<div class="cmp-row">
+        <div class="cmp-side left">
+          <span class="cmp-val left ${aWins?'cmp-winner':''}">${statsA[f.key]||'—'}</span>
+          <div class="cmp-bar-track"><div class="cmp-bar-fill a" style="width:${pctA}%"></div></div>
+        </div>
+        <div class="cmp-label">${f.lbl}</div>
+        <div class="cmp-side">
+          <div class="cmp-bar-track"><div class="cmp-bar-fill b" style="width:${pctB}%"></div></div>
+          <span class="cmp-val ${bWins?'cmp-winner':''}">${statsB[f.key]||'—'}</span>
+        </div>
+      </div>`;
+    }).join('');
+    el.innerHTML=`<div class="pc-grid">${headerCard(itemA,'a')}${headerCard(itemB,'b')}</div>${rows||'<div class="cmp-empty">No stats entered yet for these players.</div>'}`;
+  } else {
+    // Different positions — show cards side by side with stat pills
+    el.innerHTML=`<div class="pc-grid">
+      <div>
+        ${headerCard(itemA,'a')}
+        ${formatPlayerStatsDisplay(pA.pos,pA.stats)||'<div style="font-size:0.78rem;color:var(--text3);">No stats logged.</div>'}
+      </div>
+      <div>
+        ${headerCard(itemB,'b')}
+        ${formatPlayerStatsDisplay(pB.pos,pB.stats)||'<div style="font-size:0.78rem;color:var(--text3);">No stats logged.</div>'}
+      </div>
+    </div>`;
+  }
 }
 
 function renderComparison(){
@@ -3905,19 +4009,19 @@ function renderPlayerStats(){
   const players=S.seasonStats.players||[];
   if(!players.length){ el.innerHTML='<div class="empty-state">No players added yet. Log your standout performers.</div>'; return; }
   el.innerHTML=players.map((p,i)=>`
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:8px;">
-      <div class="flex-between" style="margin-bottom:${p.stats?'6px':'0'};">
-        <div>
-          <span style="font-weight:800;font-size:0.92rem;color:#fff;">${esc(p.name)}</span>
-          ${p.pos?`<span style="font-size:0.75rem;color:var(--text3);margin-left:6px;">${esc(p.pos)}</span>`:''}
-          ${p.year?`<span style="font-size:0.72rem;color:var(--text3);margin-left:4px;">${esc(p.year)}</span>`:''}
+    <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--red-border);border-radius:9px;padding:12px 14px;margin-bottom:8px;">
+      <div class="flex-between" style="margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:1px;color:#fff;">${esc(p.name)}</span>
+          ${p.pos?`<span style="font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--surface3);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;color:var(--text2);">${esc(p.pos)}</span>`:''}
+          ${p.year?`<span style="font-size:0.68rem;font-weight:700;color:var(--text3);">${esc(p.year)}</span>`:''}
         </div>
         <div style="display:flex;gap:6px;">
           <button class="btn btn-ghost btn-sm" onclick="editPlayerStat(${i})">✎</button>
           <button class="btn btn-ghost btn-sm" style="color:#f87171;" onclick="deletePlayerStat(${i})">✕</button>
         </div>
       </div>
-      ${p.stats?`<div style="font-size:0.82rem;color:var(--text2);line-height:1.55;white-space:pre-wrap;">${esc(p.stats)}</div>`:''}
+      ${formatPlayerStatsDisplay(p.pos, p.stats)}
     </div>`).join('');
 }
 function openPlayerStatModal(prefill){
@@ -3926,7 +4030,7 @@ function openPlayerStatModal(prefill){
   document.getElementById('psName').value=prefill||'';
   document.getElementById('psPos').value='';
   document.getElementById('psYear').value='';
-  document.getElementById('psStats').value='';
+  renderPlayerStatFields();
   openModal('playerStatModal');
 }
 function editPlayerStat(i){
@@ -3936,12 +4040,16 @@ function editPlayerStat(i){
   document.getElementById('psName').value=p.name||'';
   document.getElementById('psPos').value=p.pos||'';
   document.getElementById('psYear').value=p.year||'';
-  document.getElementById('psStats').value=p.stats||'';
+  // prefill structured stats (or handle legacy free-text)
+  const statsData=typeof p.stats==='object'?p.stats:{};
+  renderPlayerStatFields(statsData);
   openModal('playerStatModal');
 }
 function savePlayerStat(){
   const name=document.getElementById('psName').value.trim(); if(!name){alert('Enter a player name.');return;}
-  const entry={name,pos:document.getElementById('psPos').value.trim(),year:document.getElementById('psYear').value,stats:document.getElementById('psStats').value.trim()};
+  const pos=document.getElementById('psPos').value;
+  const stats=collectPlayerStatFields();
+  const entry={name, pos, year:document.getElementById('psYear').value, stats};
   if(!S.seasonStats.players) S.seasonStats.players=[];
   const idx=document.getElementById('playerStatEditId').value;
   if(idx!=='') S.seasonStats.players[int(idx)]=entry;
