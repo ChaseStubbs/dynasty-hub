@@ -43,6 +43,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dynasty Content Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
 :root {
@@ -53,9 +56,14 @@
   --surface3: #1a2230;
   --border:   rgba(255,255,255,0.07);
   --border2:  rgba(255,255,255,0.12);
-  --red:      #e94560;
-  --red-dim:  rgba(233,69,96,0.15);
-  --red-glow: rgba(233,69,96,0.25);
+  --red:          #e94560;
+  --red-subtle:   rgba(233,69,96,0.06);
+  --red-ultra-dim:rgba(233,69,96,0.08);
+  --red-dim:      rgba(233,69,96,0.15);
+  --red-mid:      rgba(233,69,96,0.12);
+  --red-glow:     rgba(233,69,96,0.25);
+  --red-border:   rgba(233,69,96,0.28);
+  --red-strong:   rgba(233,69,96,0.55);
   --gold:     #f59e0b;
   --gold-dim: rgba(245,158,11,0.15);
   --blue:     #3b82f6;
@@ -70,7 +78,17 @@
   --radius:   10px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; position: relative; }
+
+/* ─── GRAIN TEXTURE ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+body > * { position: relative; z-index: 1; }
 
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -88,7 +106,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .header::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at top left, rgba(233,69,96,0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at top left, var(--red-ultra-dim) 0%, transparent 60%);
   pointer-events: none;
 }
 .header::after {
@@ -96,22 +114,141 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--red), transparent);
 }
-.header-left { position: relative; display:flex; align-items:center; gap:14px; }
+.header-left { position: relative; display:flex; align-items:center; gap:16px; }
 .header-text { display:flex; flex-direction:column; }
-.team-logo-wrap { flex-shrink:0; width:52px; height:52px; border-radius:10px; overflow:hidden; background:var(--surface2); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; }
-.team-logo-wrap img { width:100%; height:100%; object-fit:contain; padding:4px; }
-.team-logo-initials { font-size:1.1rem; font-weight:900; color:#fff; letter-spacing:-1px; text-align:center; line-height:1; }
-.team-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
-/* ─── EXPORT NUDGE ─── */
-.export-nudge { position:fixed; bottom:20px; right:20px; background:var(--surface2); border:1px solid rgba(245,158,11,0.4); border-radius:10px; padding:13px 16px; max-width:300px; box-shadow:0 6px 24px rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:flex-start; gap:11px; animation:nudgeIn .25s ease; }
-@keyframes nudgeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-.nudge-icon { font-size:1.2rem; flex-shrink:0; margin-top:1px; }
+.team-logo-wrap {
+  flex-shrink:0; width:64px; height:64px; border-radius:12px; overflow:hidden;
+  background:var(--surface2); border:2px solid var(--red-glow);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 0 18px var(--red-dim), inset 0 0 0 1px rgba(255,255,255,0.05);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.team-logo-wrap img { width:100%; height:100%; object-fit:contain; padding:5px; }
+.team-logo-initials { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:#fff; letter-spacing:1px; text-align:center; line-height:1; }
+.team-eyebrow {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: 0.7rem; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--red); margin-bottom: 2px; opacity: 0.85;
+}
+.header-wordmark {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.62rem; letter-spacing:4px; text-transform:uppercase;
+  color:var(--text3); margin-top:3px;
+}
+/* ─── EXPORT NUDGE — lower-third broadcast style ─── */
+.export-nudge {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 8px 8px 0;
+  padding: 0; max-width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  z-index: 9999; overflow: hidden;
+  animation: nudgeIn .3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes nudgeIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.nudge-stripe {
+  background: linear-gradient(90deg, rgba(245,158,11,0.15), transparent);
+  padding: 12px 16px; display:flex; align-items:flex-start; gap:11px;
+}
+.nudge-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
 .nudge-body { flex:1; }
-.nudge-title { font-weight:800; font-size:0.83rem; color:var(--gold); margin-bottom:3px; }
-.nudge-msg { font-size:0.77rem; color:var(--text2); line-height:1.5; }
-.nudge-actions { display:flex; gap:8px; margin-top:9px; }
+.nudge-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 3px;
+}
+.nudge-msg { font-size:0.76rem; color:var(--text2); line-height:1.5; }
+.nudge-actions { display:flex; gap:8px; margin-top:10px; }
 .export-btn-glow { box-shadow:0 0 0 2px rgba(245,158,11,0.5); border-color:rgba(245,158,11,0.5)!important; color:var(--gold)!important; animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{box-shadow:0 0 0 2px rgba(245,158,11,0.4)} 50%{box-shadow:0 0 0 4px rgba(245,158,11,0.15)} }
+/* ─── MATCHUP CARD ─── */
+.matchup-card {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+  border: 1px solid var(--border2);
+  border-radius: 12px; overflow: hidden; margin-bottom: 14px;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.45);
+}
+.matchup-header {
+  background: linear-gradient(90deg, var(--red-ultra-dim), transparent);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+}
+.matchup-week-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:0.75rem; letter-spacing:3px;
+  color:var(--red); background:var(--red-mid); border:1px solid var(--red-border);
+  border-radius:4px; padding:2px 10px;
+}
+.matchup-teams {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; padding: 20px;  gap: 12px;
+}
+.matchup-team { display: flex; flex-direction: column; }
+.matchup-team.away { text-align: right; align-items: flex-end; }
+.matchup-team-name {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px;
+  color: #fff; line-height: 1; margin-bottom: 2px;
+}
+.matchup-team-rank {
+  font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 2px;
+  color: var(--red); margin-bottom: 4px;
+}
+.matchup-record {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 1px;
+  color: var(--text2);
+}
+.matchup-vs {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 3px;
+  color: var(--text3); text-align: center;
+}
+.matchup-stats-grid {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  border-top: 1px solid var(--border); padding: 0;
+}
+.matchup-stat-row {
+  display: contents;
+}
+.matchup-stat-row > * {
+  padding: 9px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+}
+.matchup-stat-row > *:last-child { border-bottom: none; }
+.matchup-stat-mine {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 1px; color: #fff;
+  justify-content: flex-start;
+}
+.matchup-stat-opp {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 1px; color: var(--text2);
+  justify-content: flex-end; text-align: right;
+}
+.matchup-stat-label {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text3); background: var(--surface2); justify-content: center; text-align: center;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+.matchup-stat-mine.better { color: var(--green); }
+.matchup-stat-opp.better  { color: var(--green); }
+.matchup-input-section { padding: 16px 20px; border-top: 1px solid var(--border); background: var(--surface2); }
+
+/* ─── STAT COMPARISON ─── */
+.cmp-row { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:6px; margin-bottom:10px; }
+.cmp-label { font-family:'Bebas Neue',sans-serif; font-size:0.78rem; letter-spacing:2px; color:var(--text3); text-align:center; white-space:nowrap; min-width:120px; padding:0 8px; }
+.cmp-side { display:flex; align-items:center; gap:6px; }
+.cmp-side.left { flex-direction:row-reverse; }
+.cmp-val { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:1px; color:#fff; white-space:nowrap; min-width:36px; text-align:center; }
+.cmp-val.left { text-align:right; }
+.cmp-bar-track { flex:1; height:8px; background:var(--surface3); border-radius:4px; overflow:hidden; min-width:60px; max-width:140px; }
+.cmp-bar-fill { height:100%; border-radius:4px; transition:width 0.4s cubic-bezier(0.22,1,0.36,1); }
+.cmp-bar-fill.a { background:var(--red); }
+.cmp-bar-fill.b { background:var(--blue); }
+.cmp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.cmp-legend { display:flex; gap:14px; align-items:center; }
+.cmp-legend-item { display:flex; align-items:center; gap:5px; font-size:0.72rem; font-weight:700; color:var(--text2); }
+.cmp-legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+.cmp-section-head { font-family:'Bebas Neue',sans-serif; font-size:0.78rem; letter-spacing:3px; color:var(--text3); margin:14px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px; }
+.cmp-winner { color:var(--gold) !important; }
+.cmp-empty { text-align:center; padding:24px; color:var(--text3); font-size:0.82rem; }
+
 /* ─── STORYLINES ─── */
 .storyline-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; border-left:3px solid var(--red); transition:border-color .15s; }
 .storyline-card:hover { border-color:var(--border2); }
@@ -150,26 +287,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .color-result-swatch { width:20px; height:20px; border-radius:4px; flex-shrink:0; }
 .logo-upload-preview { display:flex; align-items:center; gap:10px; margin-top:8px; }
 .logo-upload-preview img { width:48px; height:48px; object-fit:contain; border-radius:8px; background:var(--surface2); border:1px solid var(--border2); padding:3px; }
-.header h1 { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; line-height: 1; }
+.header h1 { font-family:'Bebas Neue',sans-serif; font-size: 2.1rem; font-weight: 400; color: #fff; letter-spacing: 2px; line-height: 1; }
 .header-meta { display: flex; gap: 18px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
 .header-meta-item { font-size: 0.72rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
 .header-meta-item strong { color: var(--text); font-weight: 600; }
 .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: relative; }
 .record-badge {
-  font-size: 1.3rem; font-weight: 900; color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 2px; color: #fff;
   background: var(--surface2);
   border: 1px solid var(--border2);
-  border-radius: 8px; padding: 6px 16px;
-  letter-spacing: -0.5px;
+  border-top: 2px solid var(--red);
+  border-radius: 6px; padding: 5px 18px 4px;
   font-variant-numeric: tabular-nums;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 .rank-badge {
-  font-size: 0.8rem; font-weight: 800; color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem; letter-spacing: 2px; color: #fff;
   background: var(--red); border-radius: 6px;
-  padding: 6px 12px; text-transform: uppercase; letter-spacing: 0.5px;
-  box-shadow: 0 0 16px var(--red-glow);
+  border-top: 2px solid rgba(255,255,255,0.2);
+  padding: 5px 14px 4px; text-transform: uppercase;
+  box-shadow: 0 0 16px var(--red-glow), 0 4px 12px rgba(0,0,0,0.4);
 }
-.rank-badge.unranked { background: var(--surface2); border: 1px solid var(--border2); color: var(--text2); box-shadow: none; font-weight: 500; }
+.rank-badge.unranked {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-top: 2px solid var(--border2);
+  color: var(--text3); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  font-size: 0.75rem; letter-spacing: 1.5px;
+}
 .header-edit-btn {
   background: var(--surface2); border: 1px solid var(--border2); color: var(--text2);
   border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 0.78rem; font-weight: 600;
@@ -184,11 +330,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 }
 .tabs::-webkit-scrollbar { height: 0; }
 .tab-btn {
-  padding: 13px 18px; border: none; background: none; cursor: pointer;
-  font-size: 0.8rem; font-weight: 600; color: var(--text3);
+  padding: 14px 18px; border: none; background: none; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem; font-weight: 700; color: var(--text3);
   border-bottom: 2px solid transparent; margin-bottom: -1px;
-  white-space: nowrap; transition: all 0.15s; letter-spacing: 0.3px;
-  position: relative;
+  white-space: nowrap; transition: all 0.15s; letter-spacing: 1px;
+  text-transform: uppercase; position: relative;
 }
 .tab-btn:hover { color: var(--text2); }
 .tab-btn.active {
@@ -213,33 +360,36 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   border-radius: var(--radius);
   padding: 18px 20px; margin-bottom: 14px;
   position: relative; overflow: hidden;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.03) inset;
 }
-.card:hover { border-color: var(--border2); }
-.card-accent-red::before   { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--red), transparent); }
-.card-accent-gold::before  { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--gold), transparent); }
-.card-accent-blue::before  { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--blue), transparent); }
-.card-accent-purple::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--purple), transparent); }
-.card-accent-green::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--green), transparent); }
+.card:hover { border-color: var(--border2); box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.03) inset; }
+.card-accent-red::before   { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--red), transparent); }
+.card-accent-gold::before  { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--gold), transparent); }
+.card-accent-blue::before  { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--blue), transparent); }
+.card-accent-purple::before{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--purple), transparent); }
+.card-accent-green::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--green), transparent); }
 
 .card-label {
-  font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--text3); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem; letter-spacing: 3.5px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
 }
 .card-label::after { content:''; flex:1; height:1px; background:var(--border); }
-.card-title-lg { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.card-title-lg { font-family:'Bebas Neue',sans-serif; font-size: 1.2rem; letter-spacing: 1.5px; font-weight: 400; color: #fff; margin-bottom: 4px; }
 .card-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
 
 /* ─── SEASON STAT PILLS ─── */
 .season-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .stat-pill {
   background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; min-width: 70px;
-  transition: border-color 0.15s;
+  border-top: 2px solid var(--border2);
+  border-radius: 6px; padding: 10px 14px; text-align: center; flex: 1; min-width: 70px;
+  transition: border-color 0.15s; box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
-.stat-pill:hover { border-color: var(--border2); }
-.stat-pill .val { font-size: 1.25rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
-.stat-pill .lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 3px; }
+.stat-pill:hover { border-color: var(--border2); border-top-color: var(--red); }
+.stat-pill .val { font-family:'Bebas Neue',sans-serif; font-size: 1.5rem; letter-spacing: 1px; color: #fff; font-variant-numeric: tabular-nums; line-height:1; }
+.stat-pill .lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); font-weight: 700; margin-top: 4px; }
 
 /* ─── FORMS ─── */
 .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -253,7 +403,7 @@ input[type="text"], input[type="number"], select, textarea {
 }
 input:focus, select:focus, textarea:focus {
   outline: none; border-color: var(--red);
-  background: rgba(233,69,96,0.05);
+  background: var(--red-subtle);
   box-shadow: 0 0 0 3px var(--red-dim);
 }
 select option { background: #1a2230; }
@@ -268,14 +418,14 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   letter-spacing: 0.3px;
 }
 .btn-primary { background: var(--red); color: #fff; box-shadow: 0 0 14px var(--red-dim); }
-.btn-primary:hover { background: #c73652; box-shadow: 0 0 20px var(--red-glow); }
+.btn-primary:hover { filter: brightness(0.82); box-shadow: 0 0 20px var(--red-glow); }
 .btn-danger { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
 .btn-danger:hover { background: rgba(239,68,68,0.2); }
 .btn-sm { padding: 4px 10px; font-size: 0.73rem; }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
 .btn-ghost:hover { border-color: var(--text2); color: var(--text); background: var(--surface2); }
 .btn-accent { background: var(--red); color: #fff; box-shadow: 0 0 12px var(--red-dim); }
-.btn-accent:hover { background: #c73652; box-shadow: 0 0 18px var(--red-glow); }
+.btn-accent:hover { filter: brightness(0.82); box-shadow: 0 0 18px var(--red-glow); }
 .btn-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
 .btn-green:hover { background: rgba(34,197,94,0.2); }
 
@@ -321,7 +471,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; min-width: 80px;
 }
-.dp-stat .dv { font-size: 1.2rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+.dp-stat .dv { font-family:'Bebas Neue',sans-serif; font-size: 1.4rem; letter-spacing: 1px; font-weight: 400; color: #fff; font-variant-numeric: tabular-nums; }
 .dp-stat .dl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 3px; }
 .dp-stat.warning .dv { color: var(--gold); }
 .dp-stat.danger .dv { color: var(--red); }
@@ -373,7 +523,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 }
 .game-item:hover { border-color: var(--border2); }
 .game-result-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
-.game-result { font-size: 1.1rem; font-weight: 900; }
+.game-result { font-family:'Bebas Neue',sans-serif; font-size: 1.4rem; letter-spacing: 2px; font-weight: 400; }
 .game-result.W { color: var(--green); text-shadow: 0 0 12px rgba(34,197,94,0.4); }
 .game-result.L { color: #f87171; text-shadow: 0 0 12px rgba(248,113,113,0.4); }
 .game-wk { font-size: 0.62rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -430,7 +580,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .sched-type-bowl        { background: var(--gold-dim);      color: var(--gold);   }
 .sched-type-playoff     { background: var(--red-dim);       color: var(--red);    }
 .sched-type-championship{ background: rgba(245,158,11,.25); color: #fbbf24;       }
-.sched-result { font-size: 0.78rem; font-weight: 800; flex-shrink: 0; }
+.sched-result { font-family:'Bebas Neue',sans-serif; font-size: 0.95rem; letter-spacing: 1.5px; font-weight: 400; flex-shrink: 0; }
 .sched-result-w { color: var(--green); }
 .sched-result-l { color: var(--red); }
 
@@ -466,7 +616,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 8px; padding: 8px 14px; text-align: center;
 }
-.class-stat .cv { font-size: 1.1rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+.class-stat .cv { font-family:'Bebas Neue',sans-serif; font-size: 1.3rem; letter-spacing: 1px; font-weight: 400; color: #fff; font-variant-numeric: tabular-nums; }
 .class-stat .cl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 2px; }
 
 /* ─── NIL SUMMARY ─── */
@@ -534,7 +684,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .year-fr  { background:rgba(34,197,94,0.15);  color:var(--green);  border:1px solid rgba(34,197,94,0.3); }
 .year-so  { background:rgba(59,130,246,0.15); color:var(--blue);   border:1px solid rgba(59,130,246,0.3); }
 .year-jr  { background:rgba(245,158,11,0.15); color:var(--gold);   border:1px solid rgba(245,158,11,0.3); }
-.year-sr  { background:rgba(233,69,96,0.15);  color:var(--red);    border:1px solid rgba(233,69,96,0.3); }
+.year-sr  { background:var(--red-dim);  color:var(--red);    border:1px solid var(--red-border); }
 .year-sr5 { background:rgba(167,139,250,0.15);color:var(--purple); border:1px solid rgba(167,139,250,0.3); }
 .role-buried   { color:var(--text3); }
 .role-depth    { color:var(--blue); }
@@ -544,14 +694,14 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .role-legend   { color:var(--purple); text-shadow:0 0 10px rgba(167,139,250,0.4); }
 .ovr-badge { display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:900;width:38px;height:38px;border-radius:8px;border:2px solid;flex-shrink:0;font-variant-numeric:tabular-nums; }
 .ovr-elite { background:rgba(167,139,250,0.15);border-color:rgba(167,139,250,0.45);color:var(--purple); }
-.ovr-great { background:rgba(233,69,96,0.15);  border-color:rgba(233,69,96,0.4);    color:var(--red); }
+.ovr-great { background:var(--red-dim);  border-color:var(--red-strong);    color:var(--red); }
 .ovr-good  { background:rgba(34,197,94,0.12);  border-color:rgba(34,197,94,0.35);   color:var(--green); }
 .ovr-avg   { background:rgba(59,130,246,0.12); border-color:rgba(59,130,246,0.3);   color:var(--blue); }
 .ovr-low   { background:rgba(75,85,99,0.3);    border-color:rgba(75,85,99,0.5);     color:var(--text3); }
 .player-card { background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:9px;transition:border-color 0.15s; }
 .player-card:hover { border-color:var(--border2); }
 .player-card.is-diamond  { border-left:3px solid var(--gold); }
-.player-card.is-breakout { border-left:3px solid var(--red);   box-shadow:0 0 18px rgba(233,69,96,0.07); }
+.player-card.is-breakout { border-left:3px solid var(--red);   box-shadow:0 0 18px var(--red-ultra-dim); }
 .player-card.is-legend   { border-left:3px solid var(--purple);box-shadow:0 0 18px rgba(167,139,250,0.07); }
 .player-card-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
 .player-card-name { font-weight:800;font-size:0.9rem;color:var(--text); }
@@ -559,7 +709,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .history-entry { background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:3px 9px;font-size:0.71rem;color:var(--text2); }
 .history-entry strong { color:var(--text); }
 .breakout-log { display:flex;flex-direction:column;gap:4px;margin-top:6px; }
-.breakout-entry { font-size:0.77rem;color:var(--text2);padding:5px 9px;background:var(--red-dim);border:1px solid rgba(233,69,96,0.2);border-radius:5px; }
+.breakout-entry { font-size:0.77rem;color:var(--text2);padding:5px 9px;background:var(--red-dim);border:1px solid var(--red-glow);border-radius:5px; }
 .dev-filter-bar { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px; }
 .dev-filter-btn { font-size:0.73rem;font-weight:600;padding:5px 12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);border-radius:20px;cursor:pointer;transition:all 0.15s; }
 .dev-filter-btn.active { border-color:var(--red);color:var(--red);background:var(--red-dim); }
@@ -580,10 +730,11 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
       <div class="team-logo-initials" id="teamLogoInitials">?</div>
     </div>
     <div class="header-text">
-      <div class="team-eyebrow">CFB 27 — Dynasty Content Hub</div>
+      <div class="team-eyebrow">CFB 27</div>
       <h1 id="teamNameDisplay">My Dynasty</h1>
+      <div class="header-wordmark">Dynasty Content Hub</div>
       <div class="header-meta">
-        <div class="header-meta-item">Season <strong id="seasonDisplay">1</strong></div>
+        <div class="header-meta-item"><span class="live-dot"></span>Season <strong id="seasonDisplay">1</strong></div>
         <div class="header-meta-item" id="confDisplay"></div>
       </div>
     </div>
@@ -603,11 +754,12 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
 <!-- TABS -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('planner',this)"><span class="live-dot"></span>Episode Planner</button>
+  <button class="tab-btn active" onclick="switchTab('planner',this)">🎬 Episode Planner</button>
   <button class="tab-btn" onclick="switchTab('storylines',this)">📖 Storylines</button>
   <button class="tab-btn" onclick="switchTab('program',this)">🏛 Program</button>
   <button class="tab-btn" onclick="switchTab('gamelog',this)">🏈 Game Log</button>
   <button class="tab-btn" onclick="switchTab('statstab',this)">📊 Stats</button>
+  <button class="tab-btn" onclick="switchTab('analysis',this)">📈 Analysis</button>
   <button class="tab-btn" onclick="switchTab('recruiting',this)">⭐ Recruiting</button>
   <button class="tab-btn" onclick="switchTab('portal',this)">🚪 Portal</button>
   <button class="tab-btn" onclick="switchTab('universe',this)">📰 Universe</button>
@@ -622,7 +774,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     <div class="flex-between" style="margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="card-label" style="margin-bottom:0;">Current Episode</div>
-        <span id="epCounterBadge" style="font-size:0.72rem;font-weight:800;color:var(--red);background:rgba(233,69,96,0.12);border:1px solid rgba(233,69,96,0.25);border-radius:20px;padding:2px 10px;letter-spacing:0.5px;"></span>
+        <span id="epCounterBadge" style="font-size:0.72rem;font-weight:800;color:var(--red);background:var(--red-mid);border:1px solid var(--red-border);border-radius:20px;padding:2px 10px;letter-spacing:0.5px;"></span>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="archiveEpisode()">📁 Archive Episode</button>
     </div>
@@ -889,6 +1041,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
       <div class="form-group"><label>Interceptions</label><input type="text" id="st-ints" placeholder="12"></div>
       <div class="form-group"><label>Forced Fumbles</label><input type="text" id="st-ff" placeholder="8"></div>
       <div class="form-group"><label>Turnovers Forced</label><input type="text" id="st-tof" placeholder="20"></div>
+      <div class="form-group"><label>TO Margin</label><input type="text" id="st-todiff" placeholder="+11"></div>
     </div>
     <div id="defenseSaved" style="font-size:0.78rem;color:var(--green);margin-top:4px;display:none;">✓ Defense stats saved!</div>
   </div>
@@ -913,6 +1066,83 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
       <button class="btn btn-accent btn-sm" onclick="openAwardModal()">+ Add Award</button>
     </div>
     <div id="awardList"><div class="empty-state">No awards logged yet.</div></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════ ANALYSIS -->
+<div id="tab-analysis" class="tab-panel">
+
+  <!-- THIS WEEK'S MATCHUP -->
+  <div class="matchup-card">
+    <div class="matchup-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="matchup-week-badge" id="matchupWeekBadge">WEEK —</span>
+        <span style="font-size:0.72rem;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;">This Week's Matchup</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="saveMatchup()">💾 Save</button>
+    </div>
+    <div class="matchup-teams">
+      <div class="matchup-team">
+        <div class="matchup-team-rank" id="matchupMyRank"></div>
+        <div class="matchup-team-name" id="matchupMyTeam">My Team</div>
+        <div class="matchup-record" id="matchupMyRecord">—</div>
+      </div>
+      <div class="matchup-vs">VS</div>
+      <div class="matchup-team away">
+        <div class="matchup-team-rank" id="matchupOppRank"></div>
+        <div class="matchup-team-name" id="matchupOppName">Opponent</div>
+        <div class="matchup-record" id="matchupOppRecord">—</div>
+      </div>
+    </div>
+    <div class="matchup-stats-grid" id="matchupStatsGrid"></div>
+    <div class="matchup-input-section">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:3px;color:var(--text3);margin-bottom:12px;">Opponent Info</div>
+      <div class="form-row">
+        <div class="form-group"><label>Week</label><input type="text" id="muWeek" placeholder="1" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Opponent</label><input type="text" id="muOpp" placeholder="Team Name" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Opp Ranking</label><input type="text" id="muOppRank" placeholder="#12 or NR" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Opp Record</label><input type="text" id="muOppRecord" placeholder="6-2" oninput="saveMatchup()"></div>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:3px;color:var(--text3);margin:12px 0 10px;">Opponent Stats (reference)</div>
+      <div class="form-row">
+        <div class="form-group"><label>PPG</label><input type="text" id="muOppPPG" placeholder="28.4" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>PPG Allowed</label><input type="text" id="muOppPAG" placeholder="19.1" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Total YPG</label><input type="text" id="muOppYPG" placeholder="380" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Total YPG Allowed</label><input type="text" id="muOppYAG" placeholder="295" oninput="saveMatchup()"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Pass YPG</label><input type="text" id="muOppPassYPG" placeholder="230" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Rush YPG</label><input type="text" id="muOppRushYPG" placeholder="150" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>Sacks/Game</label><input type="text" id="muOppSacks" placeholder="2.4" oninput="saveMatchup()"></div>
+        <div class="form-group"><label>TO Diff</label><input type="text" id="muOppTODiff" placeholder="+4" oninput="saveMatchup()"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEASON COMPARISON -->
+  <div class="card card-accent-green">
+    <div class="cmp-header">
+      <div>
+        <div class="card-label" style="margin-bottom:2px;">📊 Season Comparison</div>
+        <div class="card-sub">Compare any two seasons side by side.</div>
+      </div>
+      <div class="cmp-legend">
+        <div class="cmp-legend-item"><div class="cmp-legend-dot" style="background:var(--red);"></div><span id="cmpLegendA">Season A</span></div>
+        <div class="cmp-legend-item"><div class="cmp-legend-dot" style="background:var(--blue);"></div><span id="cmpLegendB">Season B</span></div>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:14px;">
+      <div class="form-group">
+        <label>Season A</label>
+        <select id="cmpSeasonA" onchange="renderComparison()"></select>
+      </div>
+      <div class="form-group">
+        <label>Season B</label>
+        <select id="cmpSeasonB" onchange="renderComparison()"></select>
+      </div>
+    </div>
+    <div id="cmpResult"></div>
   </div>
 
 </div>
@@ -1650,6 +1880,20 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
       <div class="help-section">
         <div class="help-section-header" onclick="toggleHelp(this)">
+          <div class="help-section-title"><span class="help-section-icon">📈</span>Analysis — Matchup Card & Season Comparison</div>
+          <span class="help-chevron">▶</span>
+        </div>
+        <div class="help-section-body">
+          <p><strong>This Week's Matchup</strong> is a broadcast-style reference card at the top of the Analysis tab. Enter your upcoming opponent's name, ranking, record, and key stats — the card renders a live side-by-side panel with your season averages on the left and theirs on the right.</p>
+          <p>Green highlights show which side has the edge on each stat. It's designed to stay open on a second monitor or phone while you're recording or playing — quick reference without leaving the game.</p>
+          <div class="help-tip"><strong>Tip:</strong> If you've filled out Team Offense and Defense in the Stats tab, your numbers populate automatically. The opponent fields are manual — look up their stats in-game or on the dynasty screen.</div>
+          <p><strong>Season Comparison</strong> lets you compare any two archived seasons side by side using ESPN-style mirrored bars. Offense and defense stats are shown with gold highlights on the better value per row.</p>
+          <p>Season Comparison unlocks once you've archived at least one season. Use the End of Season button in Game Log to archive.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-header" onclick="toggleHelp(this)">
           <div class="help-section-title"><span class="help-section-icon">💾</span>Saving, Export & Import</div>
           <span class="help-chevron">▶</span>
         </div>
@@ -1736,6 +1980,7 @@ const S = {
   episodeHistory:  jp(ls('dh_episodeHistory')  || '[]'),
   seasonStats:     jp(ls('dh_seasonStats')     || '{"offense":{},"defense":{},"players":[],"awards":[]}'),
   episodeCounter:  int(ls('dh_episodeCounter') || '1'),
+  matchup:         jp(ls('dh_matchup')         || '{}'),
 };
 
 function ls(k){ return localStorage.getItem(k); }
@@ -1761,6 +2006,7 @@ function switchTab(name,btn){
   if(name==='program')    setTimeout(renderBlueprintChart,60);
   if(name==='devtab')     { renderPlayerList(); renderNilDemands(); setTimeout(renderDevCharts,60); }
   if(name==='statstab')   loadStatsTab();
+  if(name==='analysis')   loadAnalysisTab();
 }
 
 // ════════════════════════════════════════ TEAM COLORS
@@ -1815,9 +2061,15 @@ const TEAM_COLORS={
 };
 function hexToRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
 function applyTeamColors(hex){
-  document.documentElement.style.setProperty('--red',hex);
-  document.documentElement.style.setProperty('--red-dim',hexToRgba(hex,.15));
-  document.documentElement.style.setProperty('--red-glow',hexToRgba(hex,.25));
+  const el=document.documentElement;
+  el.style.setProperty('--red',hex);
+  el.style.setProperty('--red-subtle',   hexToRgba(hex,.06));
+  el.style.setProperty('--red-ultra-dim',hexToRgba(hex,.08));
+  el.style.setProperty('--red-dim',      hexToRgba(hex,.15));
+  el.style.setProperty('--red-mid',      hexToRgba(hex,.12));
+  el.style.setProperty('--red-glow',     hexToRgba(hex,.25));
+  el.style.setProperty('--red-border',   hexToRgba(hex,.28));
+  el.style.setProperty('--red-strong',   hexToRgba(hex,.55));
 }
 function filterTeamColors(q){
   const res=document.getElementById('colorSearchResults');
@@ -2025,7 +2277,7 @@ function renderEpisodeHistory(){
       <div class="flex-between" style="margin-bottom:${ep.talkingPoints&&ep.talkingPoints.length?'8px':'0'};">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           ${ep.epNum?`<span style="font-size:0.7rem;font-weight:800;color:var(--text3);min-width:36px;">#${ep.epNum}</span>`:''}
-          <span style="font-size:0.7rem;font-weight:800;background:var(--red-dim);color:var(--red);border:1px solid rgba(233,69,96,0.25);border-radius:5px;padding:2px 8px;">${EP_TYPE_LABELS[ep.type]||ep.type}</span>
+          <span style="font-size:0.7rem;font-weight:800;background:var(--red-dim);color:var(--red);border:1px solid var(--red-border);border-radius:5px;padding:2px 8px;">${EP_TYPE_LABELS[ep.type]||ep.type}</span>
           ${ep.week?`<span style="font-weight:700;font-size:0.87rem;color:#fff;">${esc(ep.week)}</span>`:''}
           ${ep.opponent?`<span style="font-size:0.82rem;color:var(--text2);">vs ${esc(ep.opponent)}</span>`:''}
         </div>
@@ -2917,7 +3169,7 @@ function renderDevCharts(){
      borderWidth:1.5},
     {label:'Expected Baseline',
      data:baselineData,type:'line',
-     borderColor:'rgba(233,69,96,0.55)',borderDash:[5,4],borderWidth:1.5,
+     borderColor:getComputedStyle(document.documentElement).getPropertyValue('--red-strong').trim()||'rgba(233,69,96,0.55)',borderDash:[5,4],borderWidth:1.5,
      pointRadius:0,fill:false,tension:0.3,showLine:true}
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{boxWidth:9,font:{size:9.5},color:'#6b7280'}},
@@ -3339,7 +3591,8 @@ const DEFENSE_FIELDS=[
   {id:'st-sacks',key:'sacks', label:'Sacks'},
   {id:'st-ints', key:'ints',  label:'INTs'},
   {id:'st-ff',   key:'ff',    label:'Forced Fumbles'},
-  {id:'st-tof',  key:'tof',   label:'TOs Forced'},
+  {id:'st-tof',   key:'tof',    label:'TOs Forced'},
+  {id:'st-todiff',key:'todiff', label:'TO Margin'},
 ];
 function loadStatsTab(){
   const o=S.seasonStats.offense||{};
@@ -3349,19 +3602,188 @@ function loadStatsTab(){
   renderPlayerStats();
   renderAwards();
 }
+
+/* ─ ANALYSIS TAB ─ */
+const MATCHUP_FIELDS=[
+  {id:'muWeek',key:'week'},{id:'muOpp',key:'opp'},{id:'muOppRank',key:'oppRank'},
+  {id:'muOppRecord',key:'oppRecord'},{id:'muOppPPG',key:'oppPPG'},{id:'muOppPAG',key:'oppPAG'},
+  {id:'muOppYPG',key:'oppYPG'},{id:'muOppYAG',key:'oppYAG'},{id:'muOppPassYPG',key:'oppPassYPG'},
+  {id:'muOppRushYPG',key:'oppRushYPG'},{id:'muOppSacks',key:'oppSacks'},{id:'muOppTODiff',key:'oppTODiff'},
+];
+
+function loadAnalysisTab(){
+  // Populate matchup inputs
+  MATCHUP_FIELDS.forEach(f=>{ const el=document.getElementById(f.id); if(el) el.value=S.matchup[f.key]||''; });
+  // Auto-fill week from next unplayed schedule game
+  if(!S.matchup.week){
+    const next=S.schedule.find(g=>!g.result);
+    if(next){ const el=document.getElementById('muWeek'); if(el&&!el.value) el.value=next.week||''; }
+  }
+  if(!S.matchup.opp){
+    const next=S.schedule.find(g=>!g.result);
+    if(next){ const el=document.getElementById('muOpp'); if(el&&!el.value) el.value=next.opponent||''; }
+  }
+  renderMatchupCard();
+  populateCompareDropdowns();
+}
+
+function saveMatchup(){
+  MATCHUP_FIELDS.forEach(f=>{ const el=document.getElementById(f.id); if(el) S.matchup[f.key]=el.value.trim(); });
+  save('dh_matchup',S.matchup);
+  renderMatchupCard();
+}
+
+function renderMatchupCard(){
+  const m=S.matchup;
+  const o=S.seasonStats.offense||{};
+  const d=S.seasonStats.defense||{};
+  const wins=(S.games||[]).filter(g=>g.result==='W').length;
+  const losses=(S.games||[]).filter(g=>g.result==='L').length;
+  const myRecord=S.games&&S.games.length?wins+'-'+losses:'—';
+
+  // Header
+  const wb=document.getElementById('matchupWeekBadge');
+  if(wb) wb.textContent=m.week?'WEEK '+m.week:'WEEK —';
+  const myTeamEl=document.getElementById('matchupMyTeam');
+  if(myTeamEl) myTeamEl.textContent=S.team||'My Team';
+  const myRankEl=document.getElementById('matchupMyRank');
+  if(myRankEl) myRankEl.textContent=S.rank&&S.rank!=='NR'?'#'+S.rank:'';
+  const myRecEl=document.getElementById('matchupMyRecord');
+  if(myRecEl) myRecEl.textContent=myRecord;
+  const oppNameEl=document.getElementById('matchupOppName');
+  if(oppNameEl) oppNameEl.textContent=m.opp||'Opponent';
+  const oppRankEl=document.getElementById('matchupOppRank');
+  if(oppRankEl) oppRankEl.textContent=m.oppRank||'';
+  const oppRecEl=document.getElementById('matchupOppRecord');
+  if(oppRecEl) oppRecEl.textContent=m.oppRecord||'—';
+
+  // Stats grid
+  const grid=document.getElementById('matchupStatsGrid'); if(!grid) return;
+  const rows=[
+    {label:'PPG',mine:o.ppg,opp:m.oppPPG,higherBetter:true},
+    {label:'PPG Allowed',mine:d.pag,opp:m.oppPAG,higherBetter:false},
+    {label:'Total YPG',mine:o.tyg,opp:m.oppYPG,higherBetter:true},
+    {label:'YPG Allowed',mine:d.tyag,opp:m.oppYAG,higherBetter:false},
+    {label:'Pass YPG',mine:o.payg,opp:m.oppPassYPG,higherBetter:true},
+    {label:'Rush YPG',mine:o.ryg,opp:m.oppRushYPG,higherBetter:true},
+    {label:'Sacks/Game',mine:d.sacks,opp:m.oppSacks,higherBetter:true},
+    {label:'TO Margin',mine:d.todiff,opp:m.oppTODiff,higherBetter:true},
+  ];
+  grid.innerHTML=rows.map(r=>{
+    const mVal=parseFloat(r.mine)||0;
+    const oVal=parseFloat(r.opp)||0;
+    const hasData=r.mine||r.opp;
+    const mineBetter=hasData&&mVal&&oVal&&(r.higherBetter?mVal>oVal:mVal<oVal);
+    const oppBetter=hasData&&mVal&&oVal&&(r.higherBetter?oVal>mVal:oVal<mVal);
+    return `<div class="matchup-stat-row">
+      <div class="matchup-stat-mine${mineBetter?' better':''}">${r.mine||'—'}</div>
+      <div class="matchup-stat-label">${r.label}</div>
+      <div class="matchup-stat-opp${oppBetter?' better':''}">${r.opp||'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ─ STAT COMPARISON ─ */
+const CMP_OFFENSE=[
+  {key:'ppg',label:'Points / Game',higherBetter:true},
+  {key:'tyg',label:'Total Yds / Game',higherBetter:true},
+  {key:'payg',label:'Pass Yds / Game',higherBetter:true},
+  {key:'ryg',label:'Rush Yds / Game',higherBetter:true},
+  {key:'ptd',label:'Pass TDs',higherBetter:true},
+  {key:'rtd',label:'Rush TDs',higherBetter:true},
+  {key:'to',label:'Turnovers Lost',higherBetter:false},
+];
+const CMP_DEFENSE=[
+  {key:'pag',label:'Pts Allowed / Game',higherBetter:false},
+  {key:'tyag',label:'Yds Allowed / Game',higherBetter:false},
+  {key:'sacks',label:'Sacks',higherBetter:true},
+  {key:'ints',label:'Interceptions',higherBetter:true},
+  {key:'tof',label:'Turnovers Forced',higherBetter:true},
+];
+
+function getSeasonData(key){
+  if(key==='current') return {label:'Season '+S.season+' (current)',offense:S.seasonStats.offense||{},defense:S.seasonStats.defense||{}};
+  const arc=S.seasons.find(s=>s.seasonNum===key);
+  if(!arc) return null;
+  return {label:'Season '+arc.seasonNum+(arc.team?' · '+arc.team:''),offense:(arc.seasonStats&&arc.seasonStats.offense)||{},defense:(arc.seasonStats&&arc.seasonStats.defense)||{}};
+}
+
+function populateCompareDropdowns(){
+  const selA=document.getElementById('cmpSeasonA');
+  const selB=document.getElementById('cmpSeasonB');
+  if(!selA||!selB) return;
+  const options=[{value:'current',label:'Season '+S.season+' (current)'}]
+    .concat((S.seasons||[]).map(s=>({value:s.seasonNum,label:'Season '+s.seasonNum+(s.team?' · '+s.team:'')})));
+  const makeOpts=(selected)=>options.map(o=>`<option value="${o.value}"${o.value===selected?'selected':''}>${o.label}</option>`).join('');
+  selA.innerHTML=makeOpts('current');
+  selB.innerHTML=makeOpts(options.length>1?options[1].value:'current');
+  renderComparison();
+}
+
+function renderComparison(){
+  const selA=document.getElementById('cmpSeasonA');
+  const selB=document.getElementById('cmpSeasonB');
+  const el=document.getElementById('cmpResult'); if(!el||!selA||!selB) return;
+  // No archived seasons yet
+  if(!S.seasons||!S.seasons.length){
+    el.innerHTML='<div class="cmp-empty">Archive your first season to unlock season-over-season comparison.<br><span style="font-size:0.72rem;color:var(--text3);">Use the End of Season button in Game Log when you\'re ready.</span></div>';
+    return;
+  }
+  // Same season selected on both sides
+  if(selA.value===selB.value){
+    el.innerHTML='<div class="cmp-empty">Select two different seasons to compare.</div>';
+    return;
+  }
+  const dA=getSeasonData(selA.value);
+  const dB=getSeasonData(selB.value);
+  if(!dA||!dB){ el.innerHTML='<div class="cmp-empty">Select two seasons to compare.</div>'; return; }
+  document.getElementById('cmpLegendA').textContent=dA.label;
+  document.getElementById('cmpLegendB').textContent=dB.label;
+
+  function makeRows(fields, oA, oB){
+    return fields.map(f=>{
+      const vA=parseFloat(oA[f.key])||0;
+      const vB=parseFloat(oB[f.key])||0;
+      const max=Math.max(vA,vB,0.01);
+      const pctA=Math.round((vA/max)*100);
+      const pctB=Math.round((vB/max)*100);
+      const aWins=f.higherBetter?(vA>vB):(vA<vB&&vA>0);
+      const bWins=f.higherBetter?(vB>vA):(vB<vA&&vB>0);
+      const dispA=vA||'—'; const dispB=vB||'—';
+      return `<div class="cmp-row">
+        <div class="cmp-side left">
+          <span class="cmp-val left ${aWins?'cmp-winner':''}">${dispA}</span>
+          <div class="cmp-bar-track"><div class="cmp-bar-fill a" style="width:${pctA}%"></div></div>
+        </div>
+        <div class="cmp-label">${f.label}</div>
+        <div class="cmp-side">
+          <div class="cmp-bar-track"><div class="cmp-bar-fill b" style="width:${pctB}%"></div></div>
+          <span class="cmp-val ${bWins?'cmp-winner':''}">${dispB}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  el.innerHTML=`
+    <div class="cmp-section-head">Offense</div>
+    ${makeRows(CMP_OFFENSE, dA.offense, dB.offense)}
+    <div class="cmp-section-head" style="margin-top:18px;">Defense</div>
+    ${makeRows(CMP_DEFENSE, dA.defense, dB.defense)}
+  `;
+}
 function saveOffenseStats(){
   if(!S.seasonStats.offense) S.seasonStats.offense={};
   OFFENSE_FIELDS.forEach(f=>{ const el=document.getElementById(f.id); if(el) S.seasonStats.offense[f.key]=el.value.trim(); });
   save('dh_seasonStats',S.seasonStats);
   const msg=document.getElementById('offenseSaved');
-  if(msg){ msg.style.display='block'; setTimeout(()=>msg.style.display='none',2000); }
+  if(msg){ msg.style.display='block'; setTimeout(()=>{ msg.style.display='none'; switchTab('analysis',document.querySelector('[onclick*="analysis"]')); },1200); }
 }
 function saveDefenseStats(){
   if(!S.seasonStats.defense) S.seasonStats.defense={};
   DEFENSE_FIELDS.forEach(f=>{ const el=document.getElementById(f.id); if(el) S.seasonStats.defense[f.key]=el.value.trim(); });
   save('dh_seasonStats',S.seasonStats);
   const msg=document.getElementById('defenseSaved');
-  if(msg){ msg.style.display='block'; setTimeout(()=>msg.style.display='none',2000); }
+  if(msg){ msg.style.display='block'; setTimeout(()=>{ msg.style.display='none'; switchTab('analysis',document.querySelector('[onclick*="analysis"]')); },1200); }
 }
 function renderPlayerStats(){
   const el=document.getElementById('playerStatList'); if(!el) return;
@@ -3475,7 +3897,7 @@ function showExportNudge(msg){
   if(existing) existing.remove();
   const el=document.createElement('div');
   el.id='exportNudge'; el.className='export-nudge';
-  el.innerHTML=`<div class="nudge-icon">💾</div><div class="nudge-body"><div class="nudge-title">Back up your dynasty</div><div class="nudge-msg">${msg}</div><div class="nudge-actions"><button class="btn btn-accent btn-sm" onclick="exportData();document.getElementById('exportNudge').remove();">Export Now</button><button class="btn btn-ghost btn-sm" onclick="this.closest('.export-nudge').remove();">Dismiss</button></div></div>`;
+  el.innerHTML=`<div class="nudge-stripe"><div class="nudge-icon">💾</div><div class="nudge-body"><div class="nudge-title">Back up your dynasty</div><div class="nudge-msg">${msg}</div><div class="nudge-actions"><button class="btn btn-accent btn-sm" onclick="exportData();document.getElementById('exportNudge').remove();">Export Now</button><button class="btn btn-ghost btn-sm" onclick="this.closest('.export-nudge').remove();">Dismiss</button></div></div></div>`;
   document.body.appendChild(el);
   clearTimeout(_nudgeTimer);
   _nudgeTimer=setTimeout(()=>{ const n=document.getElementById('exportNudge'); if(n) n.remove(); },12000);
@@ -3491,7 +3913,7 @@ function checkExportGlow(){
 
 // ════════════════════════════════════════ EXPORT / IMPORT
 function exportData(){
-  const keys=['team','season','conf','rank','teamColor','episode','games','recruits','portal','nilDemands','storylines','news','adGoals','blueprint','facilities','staff','heisman','players','schedule','seasons','episodeHistory','seasonStats','episodeCounter'];
+  const keys=['team','season','conf','rank','teamColor','episode','games','recruits','portal','nilDemands','storylines','news','adGoals','blueprint','facilities','staff','heisman','players','schedule','seasons','episodeHistory','seasonStats','episodeCounter','matchup'];
   const data={_version:1,_exported:new Date().toISOString(),_dynasty:S.team};
   keys.forEach(k=>{ const v=localStorage.getItem('dh_'+k); if(v!==null) data['dh_'+k]=v; });
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
