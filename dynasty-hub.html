@@ -2671,6 +2671,27 @@ function cancelEditRecruit(){
 }
 function updateRecruitStatus(id,val){ const r=S.recruits.find(x=>x.id===id); if(r){r.status=val;save('dh_recruits',S.recruits);renderRecruits();renderRecCharts();} }
 function removeRecruit(id){ if(!confirm('Remove this recruit from the board?')) return; S.recruits=S.recruits.filter(r=>r.id!==id); save('dh_recruits',S.recruits); renderRecruits(); renderRecCharts(); }
+function pushPlayerToDev(id,isPortal){
+  const arr=isPortal?S.portal:S.recruits;
+  const r=arr.find(x=>x.id===id); if(!r) return;
+  if(S.players.some(p=>p.recruitId===id)){alert(r.name+' is already in the Development tab.');return;}
+  const ovrStr=prompt('Starting OVR for '+r.name+'? (leave blank to skip)');
+  if(ovrStr===null) return;
+  const ovr=int(ovrStr)||null;
+  S.players.push({
+    id:Date.now()+Math.random(), name:r.name, pos:r.pos,
+    recruitedAs:r.stars||0, isDiamond:!!r.isDiamond, isTransfer:!!isPortal,
+    year:'FR', overall:ovr, role:'buried', arcNotes:'',
+    overallHistory:ovr?[{label:'Enrolled',val:ovr}]:[],
+    breakouts:[], recruitId:id, nilDP:int(r.nilDP)||0
+  });
+  r.pushedToDev=true;
+  save('dh_players',S.players);
+  if(isPortal) save('dh_portal',S.portal); else save('dh_recruits',S.recruits);
+  renderRecruits(); renderRecCharts(); renderPortal();
+  renderPlayerList(); renderDevCharts();
+  showExportNudge(r.name+' added to the Development tab.');
+}
 function renderRecruits(){
   const filter=document.getElementById('recFilter').value; const el=document.getElementById('recruitList');
   let list=filter==='hs'?S.recruits.filter(r=>!r.isTransfer):filter==='transfer'?S.recruits.filter(r=>r.isTransfer):filter==='all'?S.recruits:S.recruits.filter(r=>r.status===filter);
@@ -2687,6 +2708,7 @@ function renderRecruits(){
       <select class="recruit-status-sel" onchange="updateRecruitStatus(${r.id},this.value)">
         ${Object.entries(smap).map(([k,v])=>`<option value="${k}" ${r.status===k?'selected':''}>${v}</option>`).join('')}
       </select>
+      ${(r.status==='committed'||r.status==='signed')?(r.pushedToDev||S.players.some(p=>p.recruitId===r.id)?'<button class="btn btn-sm" style="font-size:0.72rem;opacity:0.55;cursor:default;color:var(--green);border:1px solid var(--green);background:transparent;padding:3px 7px;border-radius:5px;" disabled>✓ Dev</button>':`<button class="btn btn-ghost btn-sm" onclick="pushPlayerToDev(${r.id},false)" title="Push to Development tab" style="font-size:0.72rem;color:var(--green);border-color:var(--green);">→ Dev</button>`):''}
       <button class="btn btn-ghost btn-sm" onclick="editRecruit(${r.id})">✎</button>
       <button class="btn btn-danger btn-sm" onclick="removeRecruit(${r.id})">✕</button>
     </div>`).join('');
@@ -2948,6 +2970,7 @@ function renderPortal(){
       <select class="recruit-status-sel" onchange="updatePortalStatus(${p.id},this.value)" style="color:${sColors[p.status]||'var(--text2)'};">
         ${Object.entries(smap).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v}</option>`).join('')}
       </select>
+      ${(p.status==='committed'||p.status==='signed')?(p.pushedToDev||S.players.some(x=>x.recruitId===p.id)?'<button class="btn btn-sm" style="font-size:0.72rem;opacity:0.55;cursor:default;color:var(--green);border:1px solid var(--green);background:transparent;padding:3px 7px;border-radius:5px;" disabled>✓ Dev</button>':`<button class="btn btn-ghost btn-sm" onclick="pushPlayerToDev(${p.id},true)" title="Push to Development tab" style="font-size:0.72rem;color:var(--green);border-color:var(--green);">→ Dev</button>`):''}
       <button class="btn btn-ghost btn-sm" onclick="editPortalTarget(${p.id})">✎</button>
       <button class="btn btn-danger btn-sm" onclick="removePortalTarget(${p.id})">✕</button>
     </div>`).join('');
