@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynasty Content Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:       #07090f;
+  --surface:  #0d1117;
+  --surface2: #131920;
+  --surface3: #1a2230;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --red:      #e94560;
+  --red-dim:  rgba(233,69,96,0.15);
+  --red-glow: rgba(233,69,96,0.25);
+  --gold:     #f59e0b;
+  --gold-dim: rgba(245,158,11,0.15);
+  --blue:     #3b82f6;
+  --blue-dim: rgba(59,130,246,0.15);
+  --green:    #22c55e;
+  --green-dim:rgba(34,197,94,0.15);
+  --purple:   #a78bfa;
+  --purple-dim:rgba(167,139,250,0.15);
+  --text:     #e2e8f0;
+  --text2:    #94a3b8;
+  --text3:    #4b5563;
+  --radius:   10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+/* ─── HEADER ─── */
+.header {
+  background: linear-gradient(135deg, #07090f 0%, #120818 40%, #0a1020 100%);
+  border-bottom: 1px solid var(--red-glow);
+  padding: 18px 24px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  position: relative; overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(233,69,96,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.header-left { position: relative; }
+.team-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+.header h1 { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; line-height: 1; }
+.header-meta { display: flex; gap: 18px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.header-meta-item { font-size: 0.72rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.header-meta-item strong { color: var(--text); font-weight: 600; }
+.header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: relative; }
+.record-badge {
+  font-size: 1.3rem; font-weight: 900; color: #fff;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px; padding: 6px 16px;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.rank-badge {
+  font-size: 0.8rem; font-weight: 800; color: #fff;
+  background: var(--red); border-radius: 6px;
+  padding: 6px 12px; text-transform: uppercase; letter-spacing: 0.5px;
+  box-shadow: 0 0 16px var(--red-glow);
+}
+.rank-badge.unranked { background: var(--surface2); border: 1px solid var(--border2); color: var(--text2); box-shadow: none; font-weight: 500; }
+.header-edit-btn {
+  background: var(--surface2); border: 1px solid var(--border2); color: var(--text2);
+  border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 0.78rem; font-weight: 600;
+  transition: all 0.15s; letter-spacing: 0.3px;
+}
+.header-edit-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+
+/* ─── TABS ─── */
+.tabs {
+  display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+  overflow-x: auto; padding: 0 8px; gap: 2px;
+}
+.tabs::-webkit-scrollbar { height: 0; }
+.tab-btn {
+  padding: 13px 18px; border: none; background: none; cursor: pointer;
+  font-size: 0.8rem; font-weight: 600; color: var(--text3);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  white-space: nowrap; transition: all 0.15s; letter-spacing: 0.3px;
+  position: relative;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active {
+  color: #fff; border-bottom-color: var(--red);
+}
+.tab-btn.active::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+}
+
+/* ─── LAYOUT ─── */
+.content { padding: 18px 20px; max-width: 940px; margin: 0 auto; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-accent-red::before   { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--red), transparent); }
+.card-accent-gold::before  { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--gold), transparent); }
+.card-accent-blue::before  { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--blue), transparent); }
+.card-accent-purple::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--purple), transparent); }
+.card-accent-green::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--green), transparent); }
+
+.card-label {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.card-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.card-title-lg { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.card-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
+
+/* ─── SEASON STAT PILLS ─── */
+.season-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; min-width: 70px;
+  transition: border-color 0.15s;
+}
+.stat-pill:hover { border-color: var(--border2); }
+.stat-pill .val { font-size: 1.25rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+.stat-pill .lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 3px; }
+
+/* ─── FORMS ─── */
+.form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
+label { font-size: 0.72rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; }
+input[type="text"], input[type="number"], select, textarea {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 7px; padding: 8px 12px;
+  font-size: 0.84rem; color: var(--text); font-family: inherit; width: 100%;
+  transition: all 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--red);
+  background: rgba(233,69,96,0.05);
+  box-shadow: 0 0 0 3px var(--red-dim);
+}
+select option { background: #1a2230; }
+textarea { resize: vertical; min-height: 78px; line-height: 1.5; }
+input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  border: none; border-radius: 7px; padding: 8px 15px;
+  font-size: 0.81rem; font-weight: 700; cursor: pointer;
+  transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+  letter-spacing: 0.3px;
+}
+.btn-primary { background: var(--red); color: #fff; box-shadow: 0 0 14px var(--red-dim); }
+.btn-primary:hover { background: #c73652; box-shadow: 0 0 20px var(--red-glow); }
+.btn-danger { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+.btn-sm { padding: 4px 10px; font-size: 0.73rem; }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--text2); color: var(--text); background: var(--surface2); }
+.btn-accent { background: var(--red); color: #fff; box-shadow: 0 0 12px var(--red-dim); }
+.btn-accent:hover { background: #c73652; box-shadow: 0 0 18px var(--red-glow); }
+.btn-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.btn-green:hover { background: rgba(34,197,94,0.2); }
+
+/* ─── TALKING POINTS ─── */
+.talking-points-list { list-style: none; }
+.talking-point-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 7px; margin-bottom: 4px;
+  background: var(--surface2); border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.talking-point-item:hover { border-color: var(--border2); }
+.talking-point-item span { flex: 1; font-size: 0.84rem; color: var(--text); }
+.tp-add-row { display: flex; gap: 8px; margin-top: 10px; }
+.tp-add-row input { flex: 1; }
+
+/* ─── AD GOALS ─── */
+.ad-goal {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: 9px; margin-bottom: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.ad-goal:hover { border-color: var(--border2); }
+.ad-goal.done { background: rgba(34,197,94,0.05); border-color: rgba(34,197,94,0.2); }
+.ad-goal-num {
+  font-size: 0.72rem; font-weight: 800; color: var(--bg);
+  background: var(--text3); border-radius: 50%;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.ad-goal.done .ad-goal-num { background: var(--green); }
+.ad-goal-body { flex: 1; }
+.ad-goal-text { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.ad-goal.done .ad-goal-text { text-decoration: line-through; color: var(--text3); }
+.ad-goal-status { font-size: 0.71rem; color: var(--text3); margin-top: 3px; }
+.ad-goal.done .ad-goal-status { color: var(--green); }
+.ad-goal-actions { display: flex; gap: 6px; align-items: center; }
+
+/* ─── BLUEPRINT ─── */
+.dp-overview { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.dp-stat {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; min-width: 80px;
+}
+.dp-stat .dv { font-size: 1.2rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+.dp-stat .dl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 3px; }
+.dp-stat.warning .dv { color: var(--gold); }
+.dp-stat.danger .dv { color: var(--red); }
+.blueprint-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.blueprint-row:last-child { border-bottom: none; }
+.bp-label { font-size: 0.8rem; font-weight: 600; width: 115px; flex-shrink: 0; color: var(--text2); }
+.bp-bar-wrap { flex: 1; background: var(--surface3); border-radius: 6px; height: 10px; overflow: hidden; }
+.bp-bar { height: 100%; border-radius: 6px; transition: width 0.4s ease; position: relative; }
+.bp-bar::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(90deg,rgba(255,255,255,0.15),transparent); }
+.bp-val { font-size: 0.82rem; font-weight: 700; color: #fff; width: 80px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+/* ─── FACILITIES ─── */
+.facility-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 9px; margin-bottom: 7px;
+  background: var(--surface2); border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.facility-item:hover { border-color: var(--border2); }
+.facility-icon { font-size: 1.2rem; flex-shrink: 0; }
+.facility-info { flex: 1; }
+.facility-name { font-weight: 700; font-size: 0.87rem; color: var(--text); }
+.facility-desc { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+.fac-status-sel { font-size: 0.71rem; font-weight: 700; border-radius: 20px; padding: 4px 10px; cursor: pointer; flex-shrink: 0; }
+.fac-planned  { background: var(--surface3); color: var(--text3); border: 1px solid var(--border2); }
+.fac-progress { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+.fac-complete { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+
+/* ─── COACHING STAFF ─── */
+.staff-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 9px; margin-bottom: 7px;
+  background: var(--surface2); border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.staff-item:hover { border-color: var(--border2); }
+.staff-role { font-size: 0.68rem; font-weight: 800; background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); padding: 3px 8px; border-radius: 5px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.staff-info { flex: 1; }
+.staff-name { font-weight: 700; font-size: 0.87rem; color: var(--text); }
+.staff-arch { font-size: 0.74rem; color: var(--text2); margin-top: 2px; }
+
+/* ─── GAME LOG ─── */
+.game-list { display: flex; flex-direction: column; gap: 7px; }
+.game-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 13px 15px;
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: border-color 0.15s;
+}
+.game-item:hover { border-color: var(--border2); }
+.game-result-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
+.game-result { font-size: 1.1rem; font-weight: 900; }
+.game-result.W { color: var(--green); text-shadow: 0 0 12px rgba(34,197,94,0.4); }
+.game-result.L { color: #f87171; text-shadow: 0 0 12px rgba(248,113,113,0.4); }
+.game-wk { font-size: 0.62rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.game-info { flex: 1; }
+.game-opponent { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+.game-loc { font-size: 0.72rem; color: var(--text3); font-weight: 500; margin-left: 6px; }
+.game-score { font-size: 0.8rem; color: var(--text2); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.game-notes { font-size: 0.78rem; color: var(--text2); margin-top: 6px; line-height: 1.5; border-left: 2px solid var(--surface3); padding-left: 8px; }
+.game-weather { font-size: 0.72rem; color: var(--text3); margin-top: 4px; }
+
+/* ─── HEISMAN WATCH ─── */
+.heisman-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 15px; border-radius: 9px; margin-bottom: 7px;
+  background: var(--gold-dim); border: 1px solid rgba(245,158,11,0.2);
+  transition: border-color 0.15s;
+}
+.heisman-item:hover { border-color: rgba(245,158,11,0.35); }
+.heisman-trophy { font-size: 1.5rem; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(245,158,11,0.5)); }
+.heisman-info { flex: 1; }
+.heisman-name { font-weight: 800; font-size: 0.9rem; color: var(--gold); }
+.heisman-pos { font-size: 0.74rem; color: var(--text2); margin-left: 6px; font-weight: 400; }
+.heisman-notes-area {
+  width: 100%; margin-top: 6px;
+  background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 6px; padding: 7px 10px; font-size: 0.78rem;
+  color: var(--text); resize: vertical; min-height: 52px; font-family: inherit; line-height: 1.5;
+}
+.heisman-notes-area:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+
+/* ─── RECRUITING ─── */
+.recruit-list { display: flex; flex-direction: column; gap: 7px; }
+.recruit-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 11px 14px;
+  display: flex; align-items: center; gap: 10px;
+  transition: border-color 0.15s;
+}
+.recruit-item:hover { border-color: var(--border2); }
+.recruit-item.is-transfer { border-left: 3px solid var(--purple); }
+.recruit-stars { color: var(--gold); font-size: 0.8rem; flex-shrink: 0; min-width: 58px; letter-spacing: -1px; }
+.recruit-info { flex: 1; min-width: 0; }
+.recruit-name { font-weight: 700; font-size: 0.87rem; color: var(--text); }
+.recruit-meta { font-size: 0.73rem; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+.recruit-nil { font-size: 0.71rem; color: var(--purple); font-weight: 700; margin-top: 3px; }
+.recruit-status-sel {
+  font-size: 0.7rem; font-weight: 700;
+  background: var(--surface3); border: 1px solid var(--border2);
+  color: var(--text2); border-radius: 20px; padding: 4px 10px; cursor: pointer; flex-shrink: 0;
+}
+.transfer-badge {
+  font-size: 0.64rem; font-weight: 800; background: var(--purple-dim); color: var(--purple);
+  border: 1px solid rgba(167,139,250,0.25); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+  vertical-align: middle; margin-left: 4px;
+}
+
+/* ─── CLASS SUMMARY ─── */
+.class-summary { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.class-stat {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 14px; text-align: center;
+}
+.class-stat .cv { font-size: 1.1rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+.class-stat .cl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 2px; }
+
+/* ─── NIL SUMMARY ─── */
+.nil-summary-card { background: linear-gradient(135deg, var(--surface) 0%, rgba(167,139,250,0.06) 100%); }
+
+/* ─── POS GRID ─── */
+.pos-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.pos-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; padding: 7px 12px; text-align: center;
+}
+.pos-pill .pos-label { font-weight: 800; font-size: 0.8rem; color: var(--text2); }
+.pos-pill .pos-count { font-size: 0.67rem; color: var(--text3); margin-top: 1px; }
+.pos-pill.has-commit { border-color: rgba(34,197,94,0.3); background: var(--green-dim); }
+.pos-pill.has-commit .pos-label { color: var(--green); }
+
+/* ─── CHARTS ─── */
+.charts-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+.chart-box {
+  background: var(--surface2); border-radius: 9px; border: 1px solid var(--border);
+  padding: 14px; flex: 1; min-width: 190px;
+}
+.chart-box-title { font-size: 0.63rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); margin-bottom: 12px; }
+
+/* ─── NEWS ─── */
+.news-list { display: flex; flex-direction: column; gap: 8px; }
+.news-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-left: 3px solid var(--red); border-radius: 0 9px 9px 0;
+  padding: 12px 15px; transition: border-color 0.15s;
+}
+.news-item:hover { border-top-color: var(--border2); border-right-color: var(--border2); border-bottom-color: var(--border2); }
+.news-headline { font-weight: 700; font-size: 0.88rem; color: var(--text); }
+.news-detail { font-size: 0.78rem; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+.news-week { font-size: 0.68rem; color: var(--text3); margin-top: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  z-index: 100; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 14px; padding: 24px; width: 100%; max-width: 480px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.modal h2 { font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 16px; letter-spacing: -0.2px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* ─── MISC ─── */
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.empty-state { text-align: center; padding: 28px 16px; color: var(--text3); font-size: 0.82rem; line-height: 1.6; }
+.section-sep { height: 1px; background: var(--border); margin: 16px 0; }
+.tag { display: inline-block; font-size: 0.67rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); margin-right: 5px; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+/* ─── PLAYER DEVELOPMENT ─── */
+.year-badge { display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;border-radius:4px;padding:2px 7px;text-transform:uppercase;letter-spacing:0.5px; }
+.year-fr  { background:rgba(34,197,94,0.15);  color:var(--green);  border:1px solid rgba(34,197,94,0.3); }
+.year-so  { background:rgba(59,130,246,0.15); color:var(--blue);   border:1px solid rgba(59,130,246,0.3); }
+.year-jr  { background:rgba(245,158,11,0.15); color:var(--gold);   border:1px solid rgba(245,158,11,0.3); }
+.year-sr  { background:rgba(233,69,96,0.15);  color:var(--red);    border:1px solid rgba(233,69,96,0.3); }
+.year-sr5 { background:rgba(167,139,250,0.15);color:var(--purple); border:1px solid rgba(167,139,250,0.3); }
+.role-buried   { color:var(--text3); }
+.role-depth    { color:var(--blue); }
+.role-emerging { color:var(--gold); }
+.role-starter  { color:var(--green); }
+.role-breakout { color:var(--red); text-shadow:0 0 10px var(--red-glow); }
+.role-legend   { color:var(--purple); text-shadow:0 0 10px rgba(167,139,250,0.4); }
+.ovr-badge { display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:900;width:38px;height:38px;border-radius:8px;border:2px solid;flex-shrink:0;font-variant-numeric:tabular-nums; }
+.ovr-elite { background:rgba(167,139,250,0.15);border-color:rgba(167,139,250,0.45);color:var(--purple); }
+.ovr-great { background:rgba(233,69,96,0.15);  border-color:rgba(233,69,96,0.4);    color:var(--red); }
+.ovr-good  { background:rgba(34,197,94,0.12);  border-color:rgba(34,197,94,0.35);   color:var(--green); }
+.ovr-avg   { background:rgba(59,130,246,0.12); border-color:rgba(59,130,246,0.3);   color:var(--blue); }
+.ovr-low   { background:rgba(75,85,99,0.3);    border-color:rgba(75,85,99,0.5);     color:var(--text3); }
+.player-card { background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:9px;transition:border-color 0.15s; }
+.player-card:hover { border-color:var(--border2); }
+.player-card.is-diamond  { border-left:3px solid var(--gold); }
+.player-card.is-breakout { border-left:3px solid var(--red);   box-shadow:0 0 18px rgba(233,69,96,0.07); }
+.player-card.is-legend   { border-left:3px solid var(--purple);box-shadow:0 0 18px rgba(167,139,250,0.07); }
+.player-card-header { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
+.player-card-name { font-weight:800;font-size:0.9rem;color:var(--text); }
+.history-log { display:flex;flex-wrap:wrap;gap:6px;margin-top:6px; }
+.history-entry { background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:3px 9px;font-size:0.71rem;color:var(--text2); }
+.history-entry strong { color:var(--text); }
+.breakout-log { display:flex;flex-direction:column;gap:4px;margin-top:6px; }
+.breakout-entry { font-size:0.77rem;color:var(--text2);padding:5px 9px;background:var(--red-dim);border:1px solid rgba(233,69,96,0.2);border-radius:5px; }
+.dev-filter-bar { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px; }
+.dev-filter-btn { font-size:0.73rem;font-weight:600;padding:5px 12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);border-radius:20px;cursor:pointer;transition:all 0.15s; }
+.dev-filter-btn.active { border-color:var(--red);color:var(--red);background:var(--red-dim); }
+.dev-stats-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px; }
+.dev-stat { background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:70px; }
+.dev-stat .dv { font-size:1.2rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums; }
+.dev-stat .dl { font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:600;margin-top:3px; }
+.finalize-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border); }
+.finalize-row:last-child { border-bottom:none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="team-eyebrow">CFB 27 — Dynasty Content Hub</div>
+    <h1 id="teamNameDisplay">My Dynasty</h1>
+    <div class="header-meta">
+      <div class="header-meta-item">Season <strong id="seasonDisplay">1</strong></div>
+      <div class="header-meta-item" id="confDisplay"></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="record-badge" id="recordDisplay">0–0</span>
+    <span class="rank-badge unranked" id="rankDisplay">Unranked</span>
+    <button class="header-edit-btn" onclick="openSetup()">⚙ Setup</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('planner',this)"><span class="live-dot"></span>Episode Planner</button>
+  <button class="tab-btn" onclick="switchTab('program',this)">🏛 Program</button>
+  <button class="tab-btn" onclick="switchTab('gamelog',this)">🏈 Game Log</button>
+  <button class="tab-btn" onclick="switchTab('recruiting',this)">⭐ Recruiting</button>
+  <button class="tab-btn" onclick="switchTab('universe',this)">📰 Universe</button>
+  <button class="tab-btn" onclick="switchTab('devtab',this)">💎 Development</button>
+</div>
+
+<div class="content">
+
+<!-- ══════════════════════════════════════ EPISODE PLANNER -->
+<div id="tab-planner" class="tab-panel active">
+  <div class="card card-accent-red">
+    <div class="card-label">Current Episode</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Episode Type</label>
+        <select id="epType" onchange="saveEpisode()">
+          <option value="game">🏈 Game Episode</option>
+          <option value="recruiting">⭐ Recruiting Episode</option>
+          <option value="portal">🔄 Transfer Portal Episode</option>
+          <option value="breakdown">🎯 Opponent Breakdown</option>
+          <option value="blueprint">📐 Blueprint / Program Update</option>
+          <option value="update">📰 General Update</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Week / Episode #</label>
+        <input type="text" id="epWeek" placeholder="e.g. Week 3 · Ep 12" oninput="saveEpisode()">
+      </div>
+      <div class="form-group">
+        <label>Opponent / Focus</label>
+        <input type="text" id="epOpponent" placeholder="e.g. Ohio State" oninput="saveEpisode()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:12px;">
+      <div class="card-label" style="margin-bottom:0;">Talking Points</div>
+      <span style="font-size:0.71rem;color:var(--text3);">What to cover this episode</span>
+    </div>
+    <ul class="talking-points-list" id="talkingPointsList"></ul>
+    <div class="tp-add-row mt-12">
+      <input type="text" id="newTpInput" placeholder="Add a talking point..." onkeydown="if(event.key==='Enter')addTalkingPoint()">
+      <button class="btn btn-primary" onclick="addTalkingPoint()">+ Add</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;flex-wrap:wrap;">
+    <div class="card card-accent-blue" style="flex:1;min-width:240px;">
+      <div class="card-label">Pre-Recording Notes</div>
+      <textarea id="epPrepNotes" placeholder="Storylines to hit, stats to look up, things to mention..." oninput="saveEpisode()" rows="5"></textarea>
+    </div>
+    <div class="card card-accent-green" style="flex:1;min-width:240px;">
+      <div class="card-label">Post-Recording Notes</div>
+      <textarea id="epPostNotes" placeholder="What happened, standout moments, follow-up storylines..." oninput="saveEpisode()" rows="5"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ PROGRAM -->
+<div id="tab-program" class="tab-panel">
+
+  <div class="card card-accent-red">
+    <div class="flex-between" style="margin-bottom:6px;">
+      <div class="card-title-lg">🎯 Athletic Director Expectations</div>
+      <button class="btn btn-ghost btn-sm" onclick="openAddGoal()">Edit Goals</button>
+    </div>
+    <div class="card-sub">Your AD sets 3 goals each season. Meet them all to build program trust.</div>
+    <div id="adGoalsList"></div>
+  </div>
+
+  <div class="card card-accent-blue">
+    <div class="flex-between" style="margin-bottom:4px;">
+      <div class="card-title-lg">📐 Dynasty Blueprint — DP Budget</div>
+      <button class="btn btn-ghost btn-sm" onclick="toggleBpEdit()">Edit Budget</button>
+    </div>
+    <div class="card-sub">Allocate Dynasty Points across your four pillars.</div>
+    <div class="dp-overview" id="dpOverview"></div>
+    <div id="blueprintRows"></div>
+    <div class="charts-grid" style="margin-top:16px;">
+      <div class="chart-box" style="min-width:170px;">
+        <div class="chart-box-title">DP Allocation</div>
+        <div style="height:165px;position:relative;"><canvas id="blueprintChart"></canvas></div>
+      </div>
+      <div class="chart-box" style="flex:1.4;min-width:200px;">
+        <div class="chart-box-title">Breakdown</div>
+        <div id="bpBreakdownText" style="font-size:0.82rem;color:var(--text2);line-height:2;padding-top:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-accent-gold">
+    <div class="flex-between" style="margin-bottom:12px;">
+      <div class="card-label" style="margin-bottom:0;">🏟 Facilities</div>
+      <button class="btn btn-accent btn-sm" onclick="openFacilityModal()">+ Add Upgrade</button>
+    </div>
+    <div id="facilityList"><div class="empty-state">No facility upgrades tracked yet.<br>Log what you've bought and what you're saving for.</div></div>
+  </div>
+
+  <div class="card card-accent-purple">
+    <div class="flex-between" style="margin-bottom:12px;">
+      <div class="card-label" style="margin-bottom:0;">👨‍💼 Coaching Staff</div>
+      <button class="btn btn-accent btn-sm" onclick="openStaffModal()">+ Add Coach</button>
+    </div>
+    <div id="staffList"><div class="empty-state">No coaches added yet. Track your staff's roles, archetypes, and key abilities.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ GAME LOG -->
+<div id="tab-gamelog" class="tab-panel">
+  <div class="season-bar" id="seasonSummary"></div>
+
+  <div class="card card-accent-blue">
+    <div class="card-label">Season Trajectory</div>
+    <div style="height:175px;position:relative;"><canvas id="seasonChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Log a Game</div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:66px;min-width:58px;"><label>Week</label><input type="number" id="glWeek" min="1" max="20" placeholder="1"></div>
+      <div class="form-group"><label>Opponent</label><input type="text" id="glOpponent" placeholder="e.g. Alabama"></div>
+      <div class="form-group" style="max-width:100px;"><label>Result</label><select id="glResult"><option value="W">W — Win</option><option value="L">L — Loss</option></select></div>
+      <div class="form-group" style="max-width:110px;"><label>Score (Us–Them)</label><input type="text" id="glScore" placeholder="28-21"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Ranking at Kickoff</label><input type="text" id="glRanking" placeholder="e.g. #14 vs #3 Ohio State"></div>
+      <div class="form-group" style="max-width:100px;"><label>Location</label><select id="glLocation"><option value="Home">Home</option><option value="Away">Away</option><option value="Neutral">Neutral</option></select></div>
+      <div class="form-group" style="max-width:140px;"><label>Weather</label><input type="text" id="glWeather" placeholder="Snow, Rain..."></div>
+    </div>
+    <div class="form-group mt-8">
+      <label>Key Moments / Storylines</label>
+      <textarea id="glNotes" placeholder="Walk-off FG, star RB injury, backup steps up, rivalry statement win..." rows="3"></textarea>
+    </div>
+    <div style="margin-top:12px;"><button class="btn btn-accent" onclick="addGame()">+ Log Game</button></div>
+  </div>
+
+  <div class="card card-accent-gold">
+    <div class="flex-between" style="margin-bottom:12px;">
+      <div class="card-label" style="margin-bottom:0;">🏆 Heisman Watch</div>
+      <button class="btn btn-ghost btn-sm" onclick="openHeismanModal()">+ Add Player</button>
+    </div>
+    <div id="heismanList"><div class="empty-state">No Heisman candidates tracked yet.<br>Add players and update their stats week to week.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Season Results</div>
+    <div class="game-list" id="gameList"><div class="empty-state">No games logged yet. Start recording and log results here after each session.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ RECRUITING -->
+<div id="tab-recruiting" class="tab-panel">
+
+  <div class="card card-accent-red">
+    <div class="card-label">Recruiting Class Overview</div>
+    <div class="class-summary" id="classSummary"></div>
+    <div class="charts-grid" style="margin-bottom:16px;">
+      <div class="chart-box">
+        <div class="chart-box-title">Pipeline Status</div>
+        <div style="height:175px;position:relative;"><canvas id="pipelineChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-title">Star Rating Breakdown</div>
+        <div style="height:175px;position:relative;"><canvas id="starsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card-label" style="margin-bottom:10px;">Committed / Signed by Position</div>
+    <div class="pos-grid" id="posGrid"><span style="font-size:0.8rem;color:var(--text3);">No commits yet.</span></div>
+  </div>
+
+  <div class="card nil-summary-card card-accent-purple">
+    <div class="card-label">💰 NIL Spend Tracker</div>
+    <div id="nilSummaryContent"></div>
+    <div style="height:140px;position:relative;margin-top:10px;"><canvas id="nilChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Add Recruit / Transfer</div>
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input type="text" id="recName" placeholder="Recruit name"></div>
+      <div class="form-group" style="max-width:74px;"><label>Position</label><input type="text" id="recPos" placeholder="QB"></div>
+      <div class="form-group" style="max-width:98px;"><label>Stars</label>
+        <select id="recStars">
+          <option value="5">⭐⭐⭐⭐⭐ 5★</option>
+          <option value="4">⭐⭐⭐⭐ 4★</option>
+          <option value="3" selected>⭐⭐⭐ 3★</option>
+          <option value="2">⭐⭐ 2★</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:118px;"><label>Status</label>
+        <select id="recStatus">
+          <option value="target">Target</option>
+          <option value="offered">Offered</option>
+          <option value="visited">Visited</option>
+          <option value="verbal">Verbal Commit</option>
+          <option value="committed">Committed</option>
+          <option value="signed">Signed</option>
+          <option value="flipped">Flipped</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:120px;"><label>NIL Offer (DP)</label><input type="number" id="recNilDP" placeholder="0" min="0"></div>
+      <div class="form-group" style="max-width:100px;justify-content:flex-end;padding-bottom:1px;">
+        <label>&nbsp;</label>
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:700;color:var(--purple);text-transform:none;letter-spacing:0;">
+          <input type="checkbox" id="recIsTransfer"> Transfer Portal
+        </label>
+      </div>
+      <div class="form-group" style="max-width:100px;justify-content:flex-end;padding-bottom:1px;">
+        <label>&nbsp;</label>
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:700;color:var(--gold);text-transform:none;letter-spacing:0;" title="Low-star recruit with elite upside">
+          <input type="checkbox" id="recIsDiamond"> 💎 Diamond
+        </label>
+      </div>
+      <div class="form-group"><label>Notes</label><input type="text" id="recNotes" placeholder="Competition, wants, story angle..."></div>
+    </div>
+    <div style="margin-top:10px;"><button class="btn btn-accent" onclick="addRecruit()">+ Add to Board</button></div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:14px;">
+      <div class="card-label" style="margin-bottom:0;">Recruiting Board</div>
+      <select id="recFilter" onchange="renderRecruits()" style="font-size:0.76rem;padding:5px 10px;border-radius:6px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+        <option value="all">All</option>
+        <option value="hs">HS Only</option>
+        <option value="transfer">Transfers Only</option>
+        <option value="target">Targets</option>
+        <option value="offered">Offered</option>
+        <option value="visited">Visited</option>
+        <option value="verbal">Verbal</option>
+        <option value="committed">Committed</option>
+        <option value="signed">Signed</option>
+      </select>
+    </div>
+    <div class="recruit-list" id="recruitList"><div class="empty-state">No recruits added yet.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ UNIVERSE NEWS -->
+<div id="tab-universe" class="tab-panel">
+  <div class="card card-accent-red">
+    <div class="card-label">Add Universe Story</div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:78px;"><label>Week</label><input type="text" id="newsWeek" placeholder="Wk 5"></div>
+      <div class="form-group"><label>Headline</label><input type="text" id="newsHeadline" placeholder="e.g. #2 Georgia upset at home by Tennessee"></div>
+    </div>
+    <div class="form-group mt-8">
+      <label>Details / Context</label>
+      <textarea id="newsDetail" placeholder="Playoff implications, ranking chaos, coaching carousel, big portal moves around the league..." rows="2"></textarea>
+    </div>
+    <div style="margin-top:10px;"><button class="btn btn-accent" onclick="addNews()">+ Add Story</button></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Universe Feed</div>
+    <div class="news-list" id="newsList"><div class="empty-state">No universe news yet.<br>Log upsets, Top 25 movement, coaching carousel moves, and big portal signings from around your virtual world.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ DEVELOPMENT -->
+<div id="tab-devtab" class="tab-panel">
+
+  <div class="card card-accent-purple">
+    <div class="flex-between" style="margin-bottom:14px;">
+      <div class="card-label" style="margin-bottom:0;">💎 Roster Development</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="openFinalizeModal()">🎓 Finalize Class</button>
+        <button class="btn btn-ghost btn-sm" onclick="openAdvanceYearModal()">📅 Advance Year</button>
+        <button class="btn btn-accent btn-sm" onclick="openAddPlayerModal()">+ Add Player</button>
+      </div>
+    </div>
+    <div class="dev-stats-bar" id="devStatsBar">
+      <div class="dev-stat"><div class="dv">0</div><div class="dl">On Roster</div></div>
+    </div>
+    <div class="dev-filter-bar">
+      <button class="dev-filter-btn active" onclick="setDevFilter('all',this)">All</button>
+      <button class="dev-filter-btn" onclick="setDevFilter('FR',this)">FR</button>
+      <button class="dev-filter-btn" onclick="setDevFilter('SO',this)">SO</button>
+      <button class="dev-filter-btn" onclick="setDevFilter('JR',this)">JR</button>
+      <button class="dev-filter-btn" onclick="setDevFilter('SR',this)">SR</button>
+      <button class="dev-filter-btn" onclick="setDevFilter('diamonds',this)">💎 Diamonds</button>
+    </div>
+    <div id="playerList"><div class="empty-state">No players tracked yet.<br>Use <strong>Finalize Class</strong> to import signed recruits, or add players manually.</div></div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-box" style="min-width:170px;">
+      <div class="chart-box-title">Role Distribution</div>
+      <div style="height:175px;position:relative;"><canvas id="roleChart"></canvas></div>
+    </div>
+    <div class="chart-box" style="flex:1.5;min-width:220px;">
+      <div class="chart-box-title">💎 Diamond Finder — Stars Recruited vs Current OVR</div>
+      <div style="height:175px;position:relative;"><canvas id="diamondChart"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- ══════════════════════════════════════ MODALS -->
+<div class="modal-overlay" id="setupModal">
+  <div class="modal">
+    <h2>⚙ Dynasty Setup</h2>
+    <div class="form-group" style="margin-bottom:10px;"><label>Team Name</label><input type="text" id="setupTeam" placeholder="e.g. Memphis Tigers"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Conference</label><input type="text" id="setupConf" placeholder="e.g. American Athletic"></div>
+      <div class="form-group" style="max-width:90px;"><label>Season</label><input type="number" id="setupSeason" placeholder="2027"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:80px;"><label>Wins</label><input type="number" id="setupWins" min="0" placeholder="0"></div>
+      <div class="form-group" style="max-width:80px;"><label>Losses</label><input type="number" id="setupLosses" min="0" placeholder="0"></div>
+      <div class="form-group"><label>Ranking</label><input type="text" id="setupRank" placeholder="14 or leave blank"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('setupModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSetup()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <h2>🎯 Athletic Director Expectations</h2>
+    <p style="font-size:0.8rem;color:var(--text2);margin-bottom:14px;">Enter the 3 goals your AD has set for this season.</p>
+    <div id="goalInputs"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('goalModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGoals()">Save Goals</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="facilityModal">
+  <div class="modal">
+    <h2>🏟 Add Facility Upgrade</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Facility Name</label><input type="text" id="facName" placeholder="e.g. Weight Room"></div>
+      <div class="form-group" style="max-width:130px;"><label>Status</label>
+        <select id="facStatus"><option value="planned">Planned</option><option value="progress">In Progress</option><option value="complete">Complete</option></select>
+      </div>
+    </div>
+    <div class="form-group mt-8"><label>Description / Notes</label><input type="text" id="facDesc" placeholder="e.g. Tier 2 — boosts recruit visit ratings"></div>
+    <div class="form-group mt-8"><label>DP Cost (optional)</label><input type="number" id="facDP" placeholder="0" min="0"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('facilityModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addFacility()">Add Upgrade</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="staffModal">
+  <div class="modal">
+    <h2>👨‍💼 Add Coach</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input type="text" id="staffName" placeholder="Coach name"></div>
+      <div class="form-group" style="max-width:90px;"><label>Role</label><input type="text" id="staffRole" placeholder="OC, DC, HC..."></div>
+    </div>
+    <div class="form-group mt-8"><label>Archetype</label><input type="text" id="staffArch" placeholder="e.g. Recruiter, Rainmaker, Developer"></div>
+    <div class="form-group mt-8"><label>Abilities / Notes</label><input type="text" id="staffNotes" placeholder="Key abilities, salary notes, story angle..."></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('staffModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStaff()">Add Coach</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="heismanModal">
+  <div class="modal">
+    <h2>🏆 Add Heisman Candidate</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Player Name</label><input type="text" id="heismanName" placeholder="Player name"></div>
+      <div class="form-group" style="max-width:80px;"><label>Position</label><input type="text" id="heismanPos" placeholder="QB"></div>
+    </div>
+    <div class="form-group mt-8"><label>Stats / Notes</label><textarea id="heismanNotes" placeholder="Season stats, Heisman standings, key performances..." rows="3"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('heismanModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addHeisman()">Add Candidate</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="finalizeModal">
+  <div class="modal" style="max-width:560px;">
+    <h2>🎓 Finalize Recruiting Class</h2>
+    <p style="font-size:0.8rem;color:var(--text2);margin-bottom:14px;">Select signed recruits to enroll as Freshmen on the Development roster.</p>
+    <div id="finalizeList" style="max-height:340px;overflow-y:auto;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('finalizeModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmFinalize()">Move to Roster</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="advanceYearModal">
+  <div class="modal">
+    <h2>📅 Advance All Players One Year</h2>
+    <p style="font-size:0.85rem;color:var(--text2);margin-bottom:16px;">Bumps every player's year (FR→SO, SO→JR, JR→SR, SR→SR+). SR+ stays SR+.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('advanceYearModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAdvanceYear()">Advance Year</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addPlayerModal">
+  <div class="modal">
+    <h2>+ Add Player Manually</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input type="text" id="apName" placeholder="Player name"></div>
+      <div class="form-group" style="max-width:74px;"><label>Position</label><input type="text" id="apPos" placeholder="QB"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:90px;"><label>Year</label>
+        <select id="apYear"><option value="FR">FR</option><option value="SO">SO</option><option value="JR">JR</option><option value="SR">SR</option><option value="SR+">SR+</option></select>
+      </div>
+      <div class="form-group" style="max-width:98px;"><label>Recruited As</label>
+        <select id="apStars"><option value="5">5★</option><option value="4">4★</option><option value="3" selected>3★</option><option value="2">2★</option><option value="0">Walk-on</option></select>
+      </div>
+      <div class="form-group" style="max-width:80px;"><label>OVR</label><input type="number" id="apOVR" placeholder="72" min="40" max="99"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="justify-content:flex-end;padding-bottom:1px;">
+        <label>&nbsp;</label>
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:700;color:var(--gold);text-transform:none;letter-spacing:0;">
+          <input type="checkbox" id="apDiamond"> 💎 Diamond in the Rough
+        </label>
+      </div>
+      <div class="form-group" style="justify-content:flex-end;padding-bottom:1px;">
+        <label>&nbsp;</label>
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:700;color:var(--purple);text-transform:none;letter-spacing:0;">
+          <input type="checkbox" id="apTransfer"> Transfer
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addPlayerModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAddPlayer()">Add Player</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════ CHART DEFAULTS (dark mode)
+Chart.defaults.color = '#4b5563';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+// ════════════════════════════════════════ STATE
+const S = {
+  team:      ls('dh_team')    || 'My Dynasty',
+  season:    ls('dh_season')  || '1',
+  conf:      ls('dh_conf')    || '',
+  wins:      int(ls('dh_wins')    || '0'),
+  losses:    int(ls('dh_losses')  || '0'),
+  rank:      ls('dh_rank')    || '',
+  episode:   jp(ls('dh_episode')  || '{"type":"game","week":"","opponent":"","prepNotes":"","postNotes":"","talkingPoints":[]}'),
+  games:     jp(ls('dh_games')    || '[]'),
+  recruits:  jp(ls('dh_recruits') || '[]'),
+  news:      jp(ls('dh_news')     || '[]'),
+  adGoals:   jp(ls('dh_adGoals')  || '[{"text":"","status":"pending"},{"text":"","status":"pending"},{"text":"","status":"pending"}]'),
+  blueprint: jp(ls('dh_blueprint')|| '{"totalDP":1000,"recruiting":250,"staff":100,"facilities":150}'),
+  facilities:jp(ls('dh_facilities')|| '[]'),
+  staff:     jp(ls('dh_staff')    || '[]'),
+  heisman:   jp(ls('dh_heisman')  || '[]'),
+  players:   jp(ls('dh_players')  || '[]'),
+};
+
+function ls(k){ return localStorage.getItem(k); }
+function jp(v){ try{return JSON.parse(v);}catch{return null;} }
+function int(v){ return parseInt(v)||0; }
+function save(k,v){ localStorage.setItem(k,typeof v==='object'?JSON.stringify(v):String(v)); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ════════════════════════════════════════ CHARTS
+const CH = {};
+function mkChart(id,cfg){ if(CH[id]){CH[id].destroy();delete CH[id];} const el=document.getElementById(id); if(!el) return; CH[id]=new Chart(el,cfg); }
+
+// ════════════════════════════════════════ TABS
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='gamelog')    { renderSeasonSummary(); setTimeout(renderSeasonChart,60); }
+  if(name==='recruiting') setTimeout(renderRecCharts,60);
+  if(name==='program')    setTimeout(renderBlueprintChart,60);
+  if(name==='devtab')     { renderPlayerList(); setTimeout(renderDevCharts,60); }
+}
+
+// ════════════════════════════════════════ MODALS
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openSetup(){
+  document.getElementById('setupTeam').value   = S.team;
+  document.getElementById('setupConf').value   = S.conf;
+  document.getElementById('setupSeason').value = S.season;
+  document.getElementById('setupWins').value   = S.wins;
+  document.getElementById('setupLosses').value = S.losses;
+  document.getElementById('setupRank').value   = S.rank;
+  openModal('setupModal');
+}
+function saveSetup(){
+  S.team   = document.getElementById('setupTeam').value   || 'My Dynasty';
+  S.conf   = document.getElementById('setupConf').value;
+  S.season = document.getElementById('setupSeason').value || '1';
+  S.wins   = int(document.getElementById('setupWins').value);
+  S.losses = int(document.getElementById('setupLosses').value);
+  S.rank   = document.getElementById('setupRank').value.replace('#','');
+  ['team','conf','season','wins','losses','rank'].forEach(k=>save('dh_'+k,S[k]));
+  renderHeader(); closeModal('setupModal');
+}
+
+// ════════════════════════════════════════ HEADER
+function renderHeader(){
+  document.getElementById('teamNameDisplay').textContent = S.team;
+  document.getElementById('seasonDisplay').textContent   = S.season;
+  const conf = document.getElementById('confDisplay');
+  conf.textContent = S.conf; conf.style.display = S.conf ? '' : 'none';
+  document.getElementById('recordDisplay').textContent   = S.wins+'–'+S.losses;
+  const rb = document.getElementById('rankDisplay');
+  if(S.rank){ rb.textContent='#'+S.rank; rb.className='rank-badge'; }
+  else       { rb.textContent='Unranked'; rb.className='rank-badge unranked'; }
+}
+
+// ════════════════════════════════════════ EPISODE PLANNER
+function loadEpisode(){
+  document.getElementById('epType').value       = S.episode.type      || 'game';
+  document.getElementById('epWeek').value       = S.episode.week      || '';
+  document.getElementById('epOpponent').value   = S.episode.opponent  || '';
+  document.getElementById('epPrepNotes').value  = S.episode.prepNotes || '';
+  document.getElementById('epPostNotes').value  = S.episode.postNotes || '';
+  renderTPs();
+}
+function saveEpisode(){
+  S.episode.type=document.getElementById('epType').value;
+  S.episode.week=document.getElementById('epWeek').value;
+  S.episode.opponent=document.getElementById('epOpponent').value;
+  S.episode.prepNotes=document.getElementById('epPrepNotes').value;
+  S.episode.postNotes=document.getElementById('epPostNotes').value;
+  save('dh_episode',S.episode);
+}
+function renderTPs(){
+  const el=document.getElementById('talkingPointsList');
+  if(!S.episode.talkingPoints||!S.episode.talkingPoints.length){
+    el.innerHTML='<li style="color:var(--text3);font-size:0.81rem;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">No talking points yet — add what you want to cover.</li>';
+    return;
+  }
+  el.innerHTML=S.episode.talkingPoints.map((tp,i)=>`
+    <li class="talking-point-item">
+      <span style="color:var(--red);font-weight:700;flex-shrink:0;">›</span>
+      <span>${esc(tp)}</span>
+      <button class="btn btn-danger btn-sm" onclick="removeTp(${i})">✕</button>
+    </li>`).join('');
+}
+function addTalkingPoint(){
+  const inp=document.getElementById('newTpInput'); const v=inp.value.trim(); if(!v) return;
+  if(!S.episode.talkingPoints) S.episode.talkingPoints=[];
+  S.episode.talkingPoints.push(v); inp.value='';
+  save('dh_episode',S.episode); renderTPs();
+}
+function removeTp(i){ S.episode.talkingPoints.splice(i,1); save('dh_episode',S.episode); renderTPs(); }
+
+// ════════════════════════════════════════ AD GOALS
+function openAddGoal(){
+  document.getElementById('goalInputs').innerHTML=S.adGoals.map((g,i)=>`
+    <div style="margin-bottom:12px;">
+      <label style="font-size:0.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;">Goal ${i+1}</label>
+      <input type="text" id="gi${i}" value="${esc(g.text)}" placeholder="e.g. Win conference championship" style="margin-top:5px;">
+    </div>`).join('');
+  openModal('goalModal');
+}
+function saveGoals(){
+  for(let i=0;i<3;i++){ const v=document.getElementById('gi'+i); if(v) S.adGoals[i].text=v.value.trim(); }
+  save('dh_adGoals',S.adGoals); renderADGoals(); closeModal('goalModal');
+}
+function toggleGoal(i){ S.adGoals[i].status=S.adGoals[i].status==='done'?'pending':'done'; save('dh_adGoals',S.adGoals); renderADGoals(); }
+function renderADGoals(){
+  const el=document.getElementById('adGoalsList');
+  const labels={pending:'Not Started',done:'✓ Completed'};
+  el.innerHTML=S.adGoals.map((g,i)=>`
+    <div class="ad-goal ${g.status==='done'?'done':''}">
+      <div class="ad-goal-num">${i+1}</div>
+      <div class="ad-goal-body">
+        <div class="ad-goal-text">${g.text||`<span style="color:var(--text3);font-style:italic;font-weight:400;">Goal ${i+1} not set</span>`}</div>
+        <div class="ad-goal-status">${labels[g.status]||'Not Started'}</div>
+      </div>
+      <div class="ad-goal-actions">
+        <button class="btn btn-sm ${g.status==='done'?'btn-ghost':'btn-green'}" onclick="toggleGoal(${i})">${g.status==='done'?'Undo':'Mark Complete'}</button>
+      </div>
+    </div>`).join('');
+  if(S.adGoals.every(g=>g.status==='done')){
+    el.innerHTML+=`<div style="background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:9px;padding:12px 16px;text-align:center;font-weight:800;color:var(--green);font-size:0.86rem;margin-top:10px;letter-spacing:0.3px;">🎉 All AD expectations met this season!</div>`;
+  }
+}
+
+// ════════════════════════════════════════ BLUEPRINT
+let bpEditOpen=false;
+function toggleBpEdit(){ bpEditOpen=!bpEditOpen; renderBlueprint(); }
+function calcNil(){ return S.recruits.reduce((s,r)=>s+(int(r.nilDP)||0),0); }
+function renderBlueprint(){
+  const bp=S.blueprint; const nilSpent=calcNil();
+  const allocated=int(bp.recruiting)+nilSpent+int(bp.staff)+int(bp.facilities);
+  const remaining=int(bp.totalDP)-allocated;
+  const pct=v=>int(bp.totalDP)>0?Math.min(100,Math.round(int(v)/int(bp.totalDP)*100)):0;
+  const areas=[
+    {key:'recruiting', label:'⭐ Recruiting', color:'#3b82f6', val:int(bp.recruiting)},
+    {key:'nil_auto',   label:'💰 NIL',        color:'#a78bfa', val:nilSpent, auto:true},
+    {key:'staff',      label:'👨‍💼 Staff',      color:'#34d399', val:int(bp.staff)},
+    {key:'facilities', label:'🏟 Facilities',  color:'#f59e0b', val:int(bp.facilities)},
+  ];
+  const remClass=remaining<0?'danger':remaining<int(bp.totalDP)*0.1?'warning':'';
+  document.getElementById('dpOverview').innerHTML=`
+    <div class="dp-stat"><div class="dv">${int(bp.totalDP).toLocaleString()}</div><div class="dl">Total DP</div></div>
+    <div class="dp-stat"><div class="dv">${allocated.toLocaleString()}</div><div class="dl">Allocated</div></div>
+    <div class="dp-stat ${remClass}"><div class="dv">${remaining.toLocaleString()}</div><div class="dl">Remaining</div></div>
+    <div class="dp-stat"><div class="dv">${nilSpent.toLocaleString()}</div><div class="dl">NIL Offers</div></div>`;
+  document.getElementById('blueprintRows').innerHTML=areas.map(a=>`
+    <div class="blueprint-row">
+      <div class="bp-label">${a.label}</div>
+      <div class="bp-bar-wrap"><div class="bp-bar" style="width:${pct(a.val)}%;background:${a.color};box-shadow:0 0 10px ${a.color}40;"></div></div>
+      <div class="bp-val">
+        ${a.auto ? `<span style="color:var(--purple);">${a.val.toLocaleString()} DP</span>`
+          : bpEditOpen
+            ? `<input type="number" value="${a.val}" min="0" oninput="updateBP('${a.key}',this.value)" style="width:76px;padding:4px 8px;font-size:0.8rem;text-align:right;">`
+            : `${a.val.toLocaleString()} DP`}
+      </div>
+    </div>`).join('')
+    + (bpEditOpen ? `<div class="blueprint-row"><div class="bp-label" style="color:var(--text2);">Total Budget</div><div style="flex:1;"></div><div class="bp-val"><input type="number" value="${int(bp.totalDP)}" min="0" oninput="updateBP('totalDP',this.value)" style="width:90px;padding:4px 8px;font-size:0.8rem;text-align:right;"></div></div>` : '');
+  document.getElementById('bpBreakdownText').innerHTML=areas.map(a=>`
+    <span style="color:${a.color};font-weight:700;margin-right:4px;">■</span>${a.label}: <strong style="color:#fff;">${a.val.toLocaleString()} DP</strong> <span style="color:var(--text3);">(${pct(a.val)}%)</span><br>`).join('')
+    +`<span style="color:${remaining<0?'var(--red)':'var(--text3)'};font-size:0.77rem;">Remaining: ${remaining.toLocaleString()} DP</span>`;
+}
+function updateBP(key,val){ S.blueprint[key]=int(val)||0; save('dh_blueprint',S.blueprint); renderBlueprint(); renderBlueprintChart(); }
+function renderBlueprintChart(){
+  const bp=S.blueprint; const nilSpent=calcNil();
+  const vals=[int(bp.recruiting),nilSpent,int(bp.staff),int(bp.facilities)];
+  const remaining=int(bp.totalDP)-vals.reduce((a,b)=>a+b,0);
+  mkChart('blueprintChart',{type:'doughnut',data:{labels:['Recruiting','NIL','Staff','Facilities','Unallocated'],datasets:[{data:[...vals,Math.max(0,remaining)],backgroundColor:['#3b82f6','#a78bfa','#34d399','#f59e0b','#1a2230'],borderWidth:2,borderColor:'#0d1117',hoverBorderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:9.5},color:'#6b7280'}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed.toLocaleString()} DP`}}}}});
+}
+
+// ════════════════════════════════════════ FACILITIES
+function openFacilityModal(){ ['facName','facDesc','facDP'].forEach(id=>document.getElementById(id).value=''); openModal('facilityModal'); }
+function addFacility(){
+  const name=document.getElementById('facName').value.trim(); if(!name){alert('Enter a facility name.');return;}
+  S.facilities.unshift({id:Date.now(),name,status:document.getElementById('facStatus').value,desc:document.getElementById('facDesc').value,dp:int(document.getElementById('facDP').value)});
+  save('dh_facilities',S.facilities); renderFacilities(); closeModal('facilityModal');
+}
+function updateFacilityStatus(id,status){ const f=S.facilities.find(x=>x.id===id); if(f){f.status=status;save('dh_facilities',S.facilities);renderFacilities();} }
+function removeFacility(id){ S.facilities=S.facilities.filter(f=>f.id!==id); save('dh_facilities',S.facilities); renderFacilities(); }
+function renderFacilities(){
+  const el=document.getElementById('facilityList');
+  if(!S.facilities.length){el.innerHTML='<div class="empty-state">No facility upgrades tracked yet.<br>Log what you\'ve bought and what you\'re saving for.</div>';return;}
+  const ic={'Weight Room':'🏋️','Practice Facility':'🏟️','Stadium':'🏟️','Locker Room':'👕','Training Room':'🩺','Film Room':'📽️','Recruiting Center':'📋'};
+  const sc={planned:'fac-planned',progress:'fac-progress',complete:'fac-complete'};
+  const sl={planned:'Planned',progress:'In Progress',complete:'Complete'};
+  el.innerHTML=S.facilities.map(f=>`
+    <div class="facility-item">
+      <div class="facility-icon">${ic[f.name]||'🏗️'}</div>
+      <div class="facility-info">
+        <div class="facility-name">${esc(f.name)}${f.dp?` <span style="color:var(--text3);font-size:0.73rem;font-weight:400;">${f.dp.toLocaleString()} DP</span>`:''}</div>
+        ${f.desc?`<div class="facility-desc">${esc(f.desc)}</div>`:''}
+      </div>
+      <select class="fac-status-sel ${sc[f.status]}" onchange="updateFacilityStatus(${f.id},this.value)">
+        ${['planned','progress','complete'].map(s=>`<option value="${s}" ${f.status===s?'selected':''}>${sl[s]}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="removeFacility(${f.id})">✕</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════ STAFF
+function openStaffModal(){ ['staffName','staffRole','staffArch','staffNotes'].forEach(id=>document.getElementById(id).value=''); openModal('staffModal'); }
+function addStaff(){
+  const name=document.getElementById('staffName').value.trim(); if(!name){alert('Enter a coach name.');return;}
+  S.staff.push({id:Date.now(),name,role:document.getElementById('staffRole').value,arch:document.getElementById('staffArch').value,notes:document.getElementById('staffNotes').value});
+  save('dh_staff',S.staff); renderStaff(); closeModal('staffModal');
+}
+function removeStaff(id){ S.staff=S.staff.filter(s=>s.id!==id); save('dh_staff',S.staff); renderStaff(); }
+function renderStaff(){
+  const el=document.getElementById('staffList');
+  if(!S.staff.length){el.innerHTML='<div class="empty-state">No coaches added yet.</div>';return;}
+  el.innerHTML=S.staff.map(s=>`
+    <div class="staff-item">
+      <div class="staff-role">${esc(s.role||'STAFF')}</div>
+      <div class="staff-info">
+        <div class="staff-name">${esc(s.name)}</div>
+        ${s.arch?`<div class="staff-arch">Archetype: <span style="color:var(--text);">${esc(s.arch)}</span></div>`:''}
+        ${s.notes?`<div class="staff-arch">${esc(s.notes)}</div>`:''}
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeStaff(${s.id})">✕</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════ GAME LOG
+function addGame(){
+  const opp=document.getElementById('glOpponent').value.trim(); if(!opp){alert('Enter an opponent name.');return;}
+  const game={id:Date.now(),week:document.getElementById('glWeek').value||'?',opponent:opp,result:document.getElementById('glResult').value,score:document.getElementById('glScore').value,location:document.getElementById('glLocation').value,ranking:document.getElementById('glRanking').value,weather:document.getElementById('glWeather').value,notes:document.getElementById('glNotes').value};
+  S.games.unshift(game);
+  if(game.result==='W') S.wins++; else S.losses++;
+  save('dh_games',S.games); save('dh_wins',S.wins); save('dh_losses',S.losses);
+  renderHeader(); renderGameList(); renderSeasonSummary(); renderSeasonChart();
+  ['glOpponent','glScore','glRanking','glWeather','glNotes'].forEach(id=>document.getElementById(id).value='');
+}
+function removeGame(id){
+  const idx=S.games.findIndex(g=>g.id===id); if(idx===-1) return;
+  const g=S.games[idx];
+  if(g.result==='W') S.wins=Math.max(0,S.wins-1); else S.losses=Math.max(0,S.losses-1);
+  S.games.splice(idx,1);
+  save('dh_games',S.games); save('dh_wins',S.wins); save('dh_losses',S.losses);
+  renderHeader(); renderGameList(); renderSeasonSummary(); renderSeasonChart();
+}
+function renderGameList(){
+  const el=document.getElementById('gameList');
+  if(!S.games.length){el.innerHTML='<div class="empty-state">No games logged yet. Start recording and log results here after each session.</div>';return;}
+  el.innerHTML=[...S.games].sort((a,b)=>Number(a.week)-Number(b.week)).map(g=>`
+    <div class="game-item">
+      <div class="game-result-wrap">
+        <div class="game-result ${g.result}">${g.result}</div>
+        <div class="game-wk">Wk ${g.week}</div>
+      </div>
+      <div class="game-info">
+        <div class="game-opponent">${esc(g.opponent)}<span class="game-loc">${g.location}</span></div>
+        <div class="game-score">${g.score?esc(g.score):'—'}${g.ranking?' · '+esc(g.ranking):''}</div>
+        ${g.weather?`<div class="game-weather">🌦 ${esc(g.weather)}</div>`:''}
+        ${g.notes?`<div class="game-notes">${esc(g.notes)}</div>`:''}
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeGame(${g.id})">✕</button>
+    </div>`).join('');
+}
+function renderSeasonSummary(){
+  const w=S.games.filter(g=>g.result==='W').length, l=S.games.filter(g=>g.result==='L').length;
+  document.getElementById('seasonSummary').innerHTML=`
+    <div class="stat-pill"><div class="val">${w}–${l}</div><div class="lbl">Record</div></div>
+    <div class="stat-pill"><div class="val">${S.games.length}</div><div class="lbl">Games</div></div>
+    <div class="stat-pill"><div class="val">${S.games.filter(g=>g.result==='W'&&g.location==='Home').length}</div><div class="lbl">Home W</div></div>
+    <div class="stat-pill"><div class="val">${S.games.filter(g=>g.result==='W'&&g.location==='Away').length}</div><div class="lbl">Away W</div></div>
+    <div class="stat-pill"><div class="val">${S.rank?'#'+S.rank:'—'}</div><div class="lbl">Ranking</div></div>`;
+}
+function renderSeasonChart(){
+  const sorted=[...S.games].sort((a,b)=>Number(a.week)-Number(b.week));
+  if(!sorted.length){mkChart('seasonChart',{type:'bar',data:{labels:['No games yet'],datasets:[{data:[0],backgroundColor:'#1a2230'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});return;}
+  let cumW=0; const labels=[],wB=[],lB=[],cW=[];
+  sorted.forEach(g=>{ labels.push('Wk '+g.week); wB.push(g.result==='W'?1:0); lB.push(g.result==='L'?1:0); if(g.result==='W')cumW++; cW.push(cumW); });
+  mkChart('seasonChart',{type:'bar',data:{labels,datasets:[
+    {label:'Win', data:wB, backgroundColor:'rgba(34,197,94,0.7)', borderRadius:4, stack:'r', hoverBackgroundColor:'#22c55e'},
+    {label:'Loss',data:lB, backgroundColor:'rgba(248,113,113,0.7)', borderRadius:4, stack:'r', hoverBackgroundColor:'#f87171'},
+    {label:'Cumulative Wins',data:cW,type:'line',borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',tension:0.35,pointRadius:4,pointBackgroundColor:'#3b82f6',pointBorderColor:'#0d1117',pointBorderWidth:2,yAxisID:'y2',stack:undefined},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#6b7280'}}},
+    scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:9},color:'#4b5563'}},
+            y:{stacked:true,display:false,max:1.5},
+            y2:{position:'right',grid:{drawOnChartArea:false},ticks:{stepSize:1,font:{size:9},color:'#4b5563'},title:{display:true,text:'Cum. Wins',font:{size:9},color:'#4b5563'}}}}});
+}
+
+// ════════════════════════════════════════ HEISMAN
+function openHeismanModal(){ ['heismanName','heismanPos','heismanNotes'].forEach(id=>document.getElementById(id).value=''); openModal('heismanModal'); }
+function addHeisman(){
+  const name=document.getElementById('heismanName').value.trim(); if(!name){alert('Enter a player name.');return;}
+  S.heisman.unshift({id:Date.now(),name,pos:document.getElementById('heismanPos').value,notes:document.getElementById('heismanNotes').value});
+  save('dh_heisman',S.heisman); renderHeisman(); closeModal('heismanModal');
+}
+function updateHeismanNotes(id,val){ const h=S.heisman.find(x=>x.id===id); if(h){h.notes=val;save('dh_heisman',S.heisman);} }
+function removeHeisman(id){ S.heisman=S.heisman.filter(h=>h.id!==id); save('dh_heisman',S.heisman); renderHeisman(); }
+function renderHeisman(){
+  const el=document.getElementById('heismanList');
+  if(!S.heisman.length){el.innerHTML='<div class="empty-state">No Heisman candidates yet.<br>Add players and update their stats week to week.</div>';return;}
+  el.innerHTML=S.heisman.map(h=>`
+    <div class="heisman-item">
+      <div class="heisman-trophy">🏆</div>
+      <div class="heisman-info">
+        <div class="heisman-name">${esc(h.name)}<span class="heisman-pos">${esc(h.pos)}</span></div>
+        <textarea class="heisman-notes-area" oninput="updateHeismanNotes(${h.id},this.value)" placeholder="Stats, voting position, key games...">${esc(h.notes)}</textarea>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeHeisman(${h.id})" style="flex-shrink:0;align-self:flex-start;">✕</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════ RECRUITING
+function addRecruit(){
+  const name=document.getElementById('recName').value.trim(); if(!name){alert('Enter a recruit name.');return;}
+  const rec={id:Date.now(),name,pos:document.getElementById('recPos').value,stars:int(document.getElementById('recStars').value)||3,status:document.getElementById('recStatus').value,nilDP:int(document.getElementById('recNilDP').value)||0,isTransfer:document.getElementById('recIsTransfer').checked,isDiamond:document.getElementById('recIsDiamond').checked,notes:document.getElementById('recNotes').value};
+  S.recruits.unshift(rec); save('dh_recruits',S.recruits);
+  renderRecruits(); renderRecCharts();
+  ['recName','recPos','recNilDP','recNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('recIsTransfer').checked=false;
+  document.getElementById('recIsDiamond').checked=false;
+}
+function updateRecruitStatus(id,val){ const r=S.recruits.find(x=>x.id===id); if(r){r.status=val;save('dh_recruits',S.recruits);renderRecruits();renderRecCharts();} }
+function removeRecruit(id){ S.recruits=S.recruits.filter(r=>r.id!==id); save('dh_recruits',S.recruits); renderRecruits(); renderRecCharts(); }
+function renderRecruits(){
+  const filter=document.getElementById('recFilter').value; const el=document.getElementById('recruitList');
+  let list=filter==='hs'?S.recruits.filter(r=>!r.isTransfer):filter==='transfer'?S.recruits.filter(r=>r.isTransfer):filter==='all'?S.recruits:S.recruits.filter(r=>r.status===filter);
+  if(!list.length){el.innerHTML='<div class="empty-state">No recruits to show.</div>';return;}
+  const smap={target:'Target',offered:'Offered',visited:'Visited',verbal:'Verbal',committed:'Committed',signed:'Signed',flipped:'Flipped'};
+  el.innerHTML=list.map(r=>`
+    <div class="recruit-item ${r.isTransfer?'is-transfer':''}">
+      <div class="recruit-stars">${'⭐'.repeat(r.stars)}</div>
+      <div class="recruit-info">
+        <div class="recruit-name">${esc(r.name)} <span style="color:var(--text3);font-size:0.73rem;font-weight:400;">${esc(r.pos)}</span>${r.isTransfer?'<span class="transfer-badge">Portal</span>':''}${r.isDiamond?'<span style="font-size:0.7rem;margin-left:3px;" title="Diamond in the Rough">💎</span>':''}</div>
+        ${r.notes?`<div class="recruit-meta">${esc(r.notes)}</div>`:''}
+        ${r.nilDP?`<div class="recruit-nil">💰 NIL: ${r.nilDP.toLocaleString()} DP</div>`:''}
+      </div>
+      <select class="recruit-status-sel" onchange="updateRecruitStatus(${r.id},this.value)">
+        ${Object.entries(smap).map(([k,v])=>`<option value="${k}" ${r.status===k?'selected':''}>${v}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="removeRecruit(${r.id})">✕</button>
+    </div>`).join('');
+}
+function renderRecCharts(){
+  const statuses=['target','offered','visited','verbal','committed','signed','flipped'];
+  const sColors=['#4b5563','#3b82f6','#f59e0b','#c084fc','#22c55e','#0f3460','#f87171'];
+  const counts=statuses.map(k=>S.recruits.filter(r=>r.status===k).length);
+  const hasAny=counts.some(c=>c>0);
+  const total=S.recruits.length, committed=S.recruits.filter(r=>['committed','signed'].includes(r.status)).length;
+  const nilTotal=S.recruits.reduce((s,r)=>s+(int(r.nilDP)||0),0);
+  document.getElementById('classSummary').innerHTML=`
+    <div class="class-stat"><div class="cv">${total}</div><div class="cl">Tracked</div></div>
+    <div class="class-stat"><div class="cv">${committed}</div><div class="cl">Committed+</div></div>
+    <div class="class-stat"><div class="cv">${S.recruits.filter(r=>r.stars===5).length}</div><div class="cl">5★</div></div>
+    <div class="class-stat"><div class="cv">${S.recruits.filter(r=>r.stars===4).length}</div><div class="cl">4★</div></div>
+    <div class="class-stat"><div class="cv">${S.recruits.filter(r=>r.isTransfer).length}</div><div class="cl">Transfers</div></div>
+    <div class="class-stat"><div class="cv">${nilTotal.toLocaleString()}</div><div class="cl">NIL DP</div></div>`;
+  mkChart('pipelineChart',{type:'doughnut',data:{labels:['Target','Offered','Visited','Verbal','Committed','Signed','Flipped'],datasets:[{data:hasAny?counts:[1],backgroundColor:hasAny?sColors:['#1a2230'],borderWidth:2,borderColor:'#0d1117'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:9.5},color:'#6b7280',filter:(i,d)=>hasAny?d.datasets[0].data[i.index]>0:true}},tooltip:{callbacks:{label:ctx=>hasAny?` ${ctx.label}: ${ctx.parsed}`:' No recruits yet'}}}}});
+  mkChart('starsChart',{type:'bar',data:{labels:['5★','4★','3★','2★'],datasets:[{data:[5,4,3,2].map(n=>S.recruits.filter(r=>r.stars===n).length),backgroundColor:['#f59e0b','#3b82f6','#22c55e','#4b5563'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{stepSize:1,font:{size:10},color:'#4b5563'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{font:{size:11},color:'#6b7280'}}}}});
+  const nilR=S.recruits.filter(r=>r.nilDP>0).slice(0,8);
+  if(nilR.length){
+    document.getElementById('nilSummaryContent').innerHTML=`<span style="font-size:0.81rem;color:var(--text2);">Total NIL spend: <strong style="color:var(--purple);">${nilTotal.toLocaleString()} DP</strong> across ${nilR.length} player${nilR.length>1?'s':''}.</span>`;
+    mkChart('nilChart',{type:'bar',data:{labels:nilR.map(r=>r.name.split(' ').pop()),datasets:[{data:nilR.map(r=>r.nilDP),backgroundColor:nilR.map(r=>['committed','signed'].includes(r.status)?'rgba(167,139,250,0.8)':'rgba(167,139,250,0.35)'),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.toLocaleString()} DP`}}},scales:{x:{ticks:{font:{size:9},color:'#4b5563'},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Dynasty Points',font:{size:9},color:'#4b5563'}},y:{ticks:{font:{size:10},color:'#6b7280'}}}}});
+  } else {
+    document.getElementById('nilSummaryContent').innerHTML='<div class="empty-state" style="padding:12px;">No NIL offers tracked yet. Add a DP amount when adding recruits to see spend here.</div>';
+    if(CH['nilChart']){CH['nilChart'].destroy();delete CH['nilChart'];}
+  }
+  const commits=S.recruits.filter(r=>['committed','signed'].includes(r.status)), posTally={};
+  commits.forEach(r=>{const p=(r.pos||'?').toUpperCase();posTally[p]=(posTally[p]||0)+1;});
+  const posEl=document.getElementById('posGrid');
+  if(!Object.keys(posTally).length) posEl.innerHTML='<span style="font-size:0.8rem;color:var(--text3);">No commits yet.</span>';
+  else posEl.innerHTML=Object.entries(posTally).sort((a,b)=>b[1]-a[1]).map(([pos,cnt])=>`<div class="pos-pill has-commit"><div class="pos-label">${esc(pos)}</div><div class="pos-count">${cnt} commit${cnt>1?'s':''}</div></div>`).join('');
+  renderBlueprint();
+}
+
+// ════════════════════════════════════════ UNIVERSE NEWS
+function addNews(){
+  const h=document.getElementById('newsHeadline').value.trim(); if(!h){alert('Enter a headline.');return;}
+  S.news.unshift({id:Date.now(),week:document.getElementById('newsWeek').value,headline:h,detail:document.getElementById('newsDetail').value});
+  save('dh_news',S.news); renderNews();
+  document.getElementById('newsHeadline').value=''; document.getElementById('newsDetail').value='';
+}
+function removeNews(id){ S.news=S.news.filter(n=>n.id!==id); save('dh_news',S.news); renderNews(); }
+function renderNews(){
+  const el=document.getElementById('newsList');
+  if(!S.news.length){el.innerHTML='<div class="empty-state">No universe news yet.<br>Log upsets, Top 25 movement, coaching carousel moves, and big portal signings from around your virtual world.</div>';return;}
+  el.innerHTML=S.news.map(n=>`
+    <div class="news-item">
+      <div class="flex-between">
+        <div class="news-headline">${esc(n.headline)}</div>
+        <button class="btn btn-danger btn-sm" onclick="removeNews(${n.id})">✕</button>
+      </div>
+      ${n.detail?`<div class="news-detail">${esc(n.detail)}</div>`:''}
+      ${n.week?`<div class="news-week">${esc(n.week)}</div>`:''}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════ PLAYER DEVELOPMENT
+let devFilter='all';
+function setDevFilter(f,btn){
+  devFilter=f;
+  document.querySelectorAll('.dev-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderPlayerList();
+}
+function ovrClass(ovr){ if(!ovr||ovr<=0) return 'low'; if(ovr>=90) return 'elite'; if(ovr>=80) return 'great'; if(ovr>=72) return 'good'; if(ovr>=60) return 'avg'; return 'low'; }
+function yearClass(yr){ const m={FR:'fr',SO:'so',JR:'jr',SR:'sr','SR+':'sr5'}; return 'year-'+(m[yr]||'fr'); }
+function roleLabel(r){ const m={buried:'Buried',depth:'Depth',emerging:'Emerging',starter:'Starter',breakout:'Breakout',legend:'Legend'}; return m[r]||'Buried'; }
+
+function renderDevStats(){
+  const pl=S.players;
+  const withOvr=pl.filter(p=>p.overall>0);
+  const avgOvr=withOvr.length ? Math.round(withOvr.reduce((s,p)=>s+p.overall,0)/withOvr.length) : '—';
+  const starters=pl.filter(p=>['starter','breakout','legend'].includes(p.role)).length;
+  document.getElementById('devStatsBar').innerHTML=`
+    <div class="dev-stat"><div class="dv">${pl.length}</div><div class="dl">On Roster</div></div>
+    <div class="dev-stat"><div class="dv">${starters}</div><div class="dl">Starters+</div></div>
+    <div class="dev-stat"><div class="dv">${pl.filter(p=>p.isDiamond).length}</div><div class="dl">💎 Diamonds</div></div>
+    <div class="dev-stat"><div class="dv">${avgOvr}</div><div class="dl">Avg OVR</div></div>
+    <div class="dev-stat"><div class="dv">${pl.filter(p=>p.isTransfer).length}</div><div class="dl">Transfers</div></div>`;
+}
+
+function renderPlayerList(){
+  renderDevStats();
+  const el=document.getElementById('playerList');
+  let list=[...S.players];
+  if(devFilter==='diamonds') list=list.filter(p=>p.isDiamond);
+  else if(['FR','SO','JR','SR','SR+'].includes(devFilter)) list=list.filter(p=>p.year===devFilter);
+  if(!list.length){ el.innerHTML=`<div class="empty-state">${S.players.length?'No players match this filter.':'No players tracked yet.<br>Use <strong>Finalize Class</strong> to import signed recruits, or add players manually.'}</div>`; return; }
+  el.innerHTML=list.map(p=>{
+    const oc=ovrClass(p.overall);
+    const isBreakout=p.role==='breakout', isLegend=p.role==='legend';
+    const stars=p.recruitedAs>0?'⭐'.repeat(p.recruitedAs):'Walk-on';
+    return `<div class="player-card${p.isDiamond?' is-diamond':''}${isBreakout?' is-breakout':''}${isLegend?' is-legend':''}">
+      <div class="player-card-header">
+        <div class="ovr-badge ovr-${oc}">${p.overall||'—'}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="player-card-name">${esc(p.name)}${p.isDiamond?' <span title="Diamond in the Rough">💎</span>':''}${p.isTransfer?'<span class="transfer-badge" style="margin-left:4px;">Portal</span>':''}</div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap;">
+            <span class="year-badge ${yearClass(p.year)}">${p.year}</span>
+            <span style="font-size:0.72rem;color:var(--text3);">${esc(p.pos||'')}</span>
+            <span style="font-size:0.72rem;color:var(--text3);">${stars} Recruited</span>
+            <span class="role-${p.role||'buried'}" style="font-size:0.72rem;font-weight:700;">${roleLabel(p.role)}</span>
+          </div>
+        </div>
+        <select style="font-size:0.7rem;padding:4px 8px;background:var(--surface3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);cursor:pointer;flex-shrink:0;" onchange="updatePlayerRole(${p.id},this.value)">
+          ${['buried','depth','emerging','starter','breakout','legend'].map(r=>`<option value="${r}"${p.role===r?' selected':''}>${roleLabel(r)}</option>`).join('')}
+        </select>
+        <button class="btn btn-danger btn-sm" onclick="removePlayer(${p.id})">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <label style="font-size:0.71rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">OVR</label>
+            <input type="number" value="${p.overall||''}" placeholder="—" min="40" max="99" style="width:58px;font-size:0.8rem;padding:4px 8px;" oninput="updatePlayerOVR(${p.id},this.value)" title="Current OVR">
+          </div>
+          <label style="font-size:0.71rem;color:var(--text3);text-transform:none;letter-spacing:0;cursor:pointer;display:flex;align-items:center;gap:5px;"><input type="checkbox"${p.isDiamond?' checked':''} onchange="togglePlayerDiamond(${p.id},this.checked)"> 💎 Diamond</label>
+          <button class="btn btn-ghost btn-sm" onclick="addOVRHistory(${p.id})">📊 Log OVR</button>
+          <button class="btn btn-ghost btn-sm" onclick="addBreakout(${p.id})">⚡ Breakout</button>
+        </div>
+        <textarea placeholder="Arc notes — story angle, key moments, role in program..." rows="2" style="font-size:0.79rem;resize:vertical;" oninput="updatePlayerArc(${p.id},this.value)">${esc(p.arcNotes)}</textarea>
+        ${p.overallHistory&&p.overallHistory.length?`<div class="history-log">${p.overallHistory.map(h=>`<div class="history-entry">${esc(h.label)}: <strong>${h.val}</strong></div>`).join('')}</div>`:''}
+        ${p.breakouts&&p.breakouts.length?`<div class="breakout-log">${p.breakouts.map(b=>`<div class="breakout-entry">⚡ ${esc(b.text)}${b.season?` <span style="color:var(--text3);font-size:0.68rem;">S${esc(b.season)}</span>`:''}</div>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updatePlayerRole(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.role=val;save('dh_players',S.players);renderPlayerList();renderDevCharts();} }
+function removePlayer(id){ S.players=S.players.filter(p=>p.id!==id); save('dh_players',S.players); renderPlayerList(); renderDevCharts(); }
+function updatePlayerOVR(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.overall=int(val)||null;save('dh_players',S.players);renderDevStats();renderDevCharts();} }
+function togglePlayerDiamond(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.isDiamond=val;save('dh_players',S.players);renderDevStats();renderDevCharts();} }
+function updatePlayerArc(id,val){ const p=S.players.find(x=>x.id===id); if(p){p.arcNotes=val;save('dh_players',S.players);} }
+
+function addOVRHistory(id){
+  const p=S.players.find(x=>x.id===id); if(!p) return;
+  const label=prompt('Label for this OVR snapshot (e.g. "End of S1", "Post Spring"):','');
+  if(label===null) return;
+  const val=int(prompt('Current OVR rating:',''));
+  if(!val) return;
+  if(!p.overallHistory) p.overallHistory=[];
+  p.overallHistory.push({label:label||'Snapshot',val});
+  p.overall=val;
+  save('dh_players',S.players); renderPlayerList(); renderDevCharts();
+}
+function addBreakout(id){
+  const p=S.players.find(x=>x.id===id); if(!p) return;
+  const text=prompt('Describe the breakout moment:','');
+  if(!text||!text.trim()) return;
+  const season=prompt('Season # (optional, leave blank to skip):','');
+  if(!p.breakouts) p.breakouts=[];
+  p.breakouts.push({text:text.trim(),season:season||''});
+  save('dh_players',S.players); renderPlayerList();
+}
+
+// Finalize Class
+function openFinalizeModal(){
+  const signed=S.recruits.filter(r=>r.status==='signed');
+  const el=document.getElementById('finalizeList');
+  if(!signed.length){
+    el.innerHTML='<div class="empty-state">No signed recruits to finalize.<br>Mark recruits as "Signed" on the recruiting board first.</div>';
+  } else {
+    el.innerHTML=signed.map(r=>`
+      <div class="finalize-row">
+        <input type="checkbox" id="fin_${r.id}" checked style="accent-color:var(--red);width:16px;height:16px;flex-shrink:0;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:0.87rem;color:var(--text);">${esc(r.name)} <span style="color:var(--text3);font-size:0.73rem;font-weight:400;">${esc(r.pos)}</span> ${'⭐'.repeat(r.stars||0)}${r.isTransfer?'<span class="transfer-badge" style="margin-left:4px;">Portal</span>':''}${r.isDiamond?' <span title="Diamond in the Rough">💎</span>':''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <label style="font-size:0.71rem;color:var(--text3);text-transform:none;letter-spacing:0;">Starting OVR:</label>
+          <input type="number" id="fin_ovr_${r.id}" placeholder="72" min="40" max="99" style="width:60px;font-size:0.8rem;padding:4px 8px;">
+        </div>
+      </div>`).join('');
+  }
+  openModal('finalizeModal');
+}
+function confirmFinalize(){
+  const signed=S.recruits.filter(r=>r.status==='signed');
+  const toMove=signed.filter(r=>{ const cb=document.getElementById('fin_'+r.id); return cb&&cb.checked; });
+  if(!toMove.length){ closeModal('finalizeModal'); return; }
+  toMove.forEach(r=>{
+    const ovrEl=document.getElementById('fin_ovr_'+r.id);
+    const ovr=ovrEl?int(ovrEl.value)||null:null;
+    S.players.push({
+      id:Date.now()+Math.random(), name:r.name, pos:r.pos,
+      recruitedAs:r.stars||0, isDiamond:!!r.isDiamond, isTransfer:!!r.isTransfer,
+      year:'FR', overall:ovr, role:'buried', arcNotes:'',
+      overallHistory:ovr?[{label:'Enrolled',val:ovr}]:[],
+      breakouts:[], recruitId:r.id
+    });
+    S.recruits=S.recruits.filter(x=>x.id!==r.id);
+  });
+  save('dh_players',S.players); save('dh_recruits',S.recruits);
+  renderRecruits(); renderRecCharts(); renderPlayerList(); renderDevCharts();
+  closeModal('finalizeModal');
+}
+
+// Advance Year
+function openAdvanceYearModal(){ openModal('advanceYearModal'); }
+function confirmAdvanceYear(){
+  const order=['FR','SO','JR','SR','SR+'];
+  S.players.forEach(p=>{ const idx=order.indexOf(p.year); if(idx>=0&&idx<order.length-1) p.year=order[idx+1]; });
+  save('dh_players',S.players); renderPlayerList(); closeModal('advanceYearModal');
+}
+
+// Add Player Manually
+function openAddPlayerModal(){ ['apName','apPos','apOVR'].forEach(id=>document.getElementById(id).value=''); document.getElementById('apDiamond').checked=false; document.getElementById('apTransfer').checked=false; openModal('addPlayerModal'); }
+function confirmAddPlayer(){
+  const name=document.getElementById('apName').value.trim(); if(!name){alert('Enter a player name.');return;}
+  const ovr=int(document.getElementById('apOVR').value)||null;
+  S.players.push({
+    id:Date.now()+Math.random(), name, pos:document.getElementById('apPos').value,
+    recruitedAs:int(document.getElementById('apStars').value)||3,
+    isDiamond:document.getElementById('apDiamond').checked,
+    isTransfer:document.getElementById('apTransfer').checked,
+    year:document.getElementById('apYear').value||'FR',
+    overall:ovr, role:'buried', arcNotes:'',
+    overallHistory:ovr?[{label:'Added',val:ovr}]:[],
+    breakouts:[], recruitId:null
+  });
+  save('dh_players',S.players); renderPlayerList(); renderDevCharts(); closeModal('addPlayerModal');
+}
+
+// Dev Charts
+function renderDevCharts(){
+  // Role distribution donut
+  const roles=['buried','depth','emerging','starter','breakout','legend'];
+  const roleColors=['#4b5563','#3b82f6','#f59e0b','#22c55e','#e94560','#a78bfa'];
+  const counts=roles.map(r=>S.players.filter(p=>p.role===r).length);
+  const hasAny=counts.some(c=>c>0);
+  mkChart('roleChart',{type:'doughnut',data:{labels:['Buried','Depth','Emerging','Starter','Breakout','Legend'],datasets:[{data:hasAny?counts:[1],backgroundColor:hasAny?roleColors:['#1a2230'],borderWidth:2,borderColor:'#0d1117',hoverBorderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:9.5},color:'#6b7280',filter:(i,d)=>hasAny?d.datasets[0].data[i.index]>0:true}},tooltip:{callbacks:{label:ctx=>hasAny?` ${ctx.label}: ${ctx.parsed}`:' No players yet'}}}}});
+
+  // Diamond Finder scatter
+  const playersWithData=S.players.filter(p=>p.recruitedAs&&p.overall);
+  const baselineData=[{x:2,y:62},{x:3,y:72},{x:4,y:81},{x:5,y:89}];
+  mkChart('diamondChart',{type:'scatter',data:{datasets:[
+    {label:'Players',
+     data:playersWithData.map(p=>({x:p.recruitedAs,y:p.overall,name:p.name,diamond:p.isDiamond})),
+     backgroundColor:playersWithData.map(p=>p.isDiamond?'rgba(245,158,11,0.9)':'rgba(59,130,246,0.65)'),
+     pointRadius:playersWithData.map(p=>p.isDiamond?7:5),
+     borderColor:playersWithData.map(p=>p.isDiamond?'#f59e0b':'#3b82f6'),
+     borderWidth:1.5},
+    {label:'Expected Baseline',
+     data:baselineData,type:'line',
+     borderColor:'rgba(233,69,96,0.55)',borderDash:[5,4],borderWidth:1.5,
+     pointRadius:0,fill:false,tension:0.3,showLine:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:9,font:{size:9.5},color:'#6b7280'}},
+      tooltip:{callbacks:{label:ctx=>{
+        if(ctx.dataset.label==='Expected Baseline') return ` Baseline ${ctx.raw.x}★: ~${ctx.raw.y} OVR`;
+        const p=playersWithData[ctx.dataIndex];
+        if(!p) return '';
+        return ` ${p.name}${p.isDiamond?' 💎':''}: ${ctx.raw.y} OVR (${ctx.raw.x}★ recruited)`;
+      }}}},
+    scales:{
+      x:{title:{display:true,text:'Stars Recruited',font:{size:9},color:'#4b5563'},min:1.5,max:5.5,ticks:{stepSize:1,font:{size:10},color:'#4b5563'},grid:{color:'rgba(255,255,255,0.04)'}},
+      y:{title:{display:true,text:'Current OVR',font:{size:9},color:'#4b5563'},min:40,max:99,ticks:{font:{size:10},color:'#4b5563'},grid:{color:'rgba(255,255,255,0.04)'}}
+    }}});
+}
+
+// ════════════════════════════════════════ INIT
+renderHeader(); loadEpisode(); renderADGoals(); renderBlueprint();
+renderFacilities(); renderStaff(); renderGameList(); renderSeasonSummary();
+renderRecruits(); renderNews(); renderHeisman(); renderPlayerList();
+</script>
+</body>
+</html>
