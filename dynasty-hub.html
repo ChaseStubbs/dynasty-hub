@@ -717,6 +717,10 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .player-card.is-diamond  { border-left:3px solid var(--gold); }
 .player-card.is-breakout { border-left:3px solid var(--red);   box-shadow:0 0 18px var(--red-ultra-dim); }
 .player-card.pipeline-card { border-left:3px solid var(--gold); background:rgba(245,158,11,0.04); }
+.acq-toggle-bar { display:flex; gap:6px; margin-bottom:16px; }
+.acq-toggle-btn { font-family:'Barlow Condensed',sans-serif; font-size:0.9rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; padding:7px 20px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text3); cursor:pointer; transition:all .15s; }
+.acq-toggle-btn:hover { background:var(--surface3); color:var(--text2); }
+.acq-toggle-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
 .depth-group-header { font-family:'Bebas Neue',cursive; font-size:1.05rem; letter-spacing:2.5px; color:var(--red); margin-bottom:8px; padding-bottom:7px; border-bottom:1px solid var(--border2); }
 .depth-table { display:flex; flex-direction:column; gap:1px; margin-bottom:4px; }
 .depth-header-row,.depth-row { display:grid; grid-template-columns:58px 1fr 1fr 1fr; gap:8px; align-items:center; padding:5px 6px; border-radius:6px; }
@@ -783,15 +787,13 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('planner',this)">🎬 Episode Planner</button>
   <button class="tab-btn" onclick="switchTab('storylines',this)">📖 Storylines</button>
-  <button class="tab-btn" onclick="switchTab('program',this)">🏛 Program</button>
   <button class="tab-btn" onclick="switchTab('gamelog',this)">🏈 Game Log</button>
   <button class="tab-btn" onclick="switchTab('statstab',this)">📊 Stats</button>
   <button class="tab-btn" onclick="switchTab('analysis',this)">📈 Analysis</button>
   <button class="tab-btn" onclick="switchTab('recruiting',this)">⭐ Recruiting</button>
-  <button class="tab-btn" onclick="switchTab('portal',this)">🚪 Portal</button>
-  <button class="tab-btn" onclick="switchTab('universe',this)">📰 Universe</button>
   <button class="tab-btn" onclick="switchTab('devtab',this)">💎 Development</button>
   <button class="tab-btn" onclick="switchTab('depthchart',this)">🗂 Depth Chart</button>
+  <button class="tab-btn" onclick="switchTab('program',this)">🏛 Program</button>
 </div>
 
 <div class="content">
@@ -940,6 +942,27 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     </div>
     <div id="staffList"><div class="empty-state">No coaches added yet. Track your staff's roles, archetypes, and key abilities.</div></div>
   </div>
+
+  <div class="card card-accent-red">
+    <div class="card-label">Add Universe Story</div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:78px;"><label>Week</label><input type="text" id="newsWeek" placeholder="Wk 5"></div>
+      <div class="form-group"><label>Headline</label><input type="text" id="newsHeadline" placeholder="e.g. #2 Georgia upset at home by Tennessee"></div>
+    </div>
+    <div class="form-group mt-8">
+      <label>Details / Context</label>
+      <textarea id="newsDetail" placeholder="Playoff implications, ranking chaos, coaching carousel, big portal moves around the league..." rows="2"></textarea>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+      <button id="newsAddBtn" class="btn btn-accent" onclick="addNews()">+ Add Story</button>
+      <button id="newsCancelBtn" class="btn btn-ghost btn-sm" onclick="cancelEditNews()" style="display:none;">✕ Cancel Edit</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">📰 Universe Feed</div>
+    <div class="news-list" id="newsList"><div class="empty-state">No universe news yet.<br>Log upsets, Top 25 movement, coaching carousel moves, and big portal signings from around your virtual world.</div></div>
+  </div>
+
 </div>
 
 <!-- ══════════════════════════════════════ GAME LOG -->
@@ -1284,6 +1307,12 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 <!-- ══════════════════════════════════════ RECRUITING -->
 <div id="tab-recruiting" class="tab-panel">
 
+  <div class="acq-toggle-bar">
+    <button class="acq-toggle-btn active" data-board="hs" onclick="switchAcqBoard('hs')">⭐ High School</button>
+    <button class="acq-toggle-btn" data-board="portal" onclick="switchAcqBoard('portal')">🚪 Transfer Portal</button>
+  </div>
+
+  <div id="hsBoard">
   <div class="card card-accent-red">
     <div class="card-label">Recruiting Class Overview</div>
     <div class="class-summary" id="classSummary"></div>
@@ -1371,11 +1400,9 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     </div>
     <div class="recruit-list" id="recruitList"><div class="empty-state">No recruits added yet.</div></div>
   </div>
-</div>
+  </div><!-- /hsBoard -->
 
-<!-- ══════════════════════════════════════ TRANSFER PORTAL -->
-<div id="tab-portal" class="tab-panel">
-
+  <div id="portalBoard" style="display:none;">
   <div class="card card-accent-purple">
     <div class="card-label">Portal Board Summary</div>
     <div class="class-summary" id="portalSummary"></div>
@@ -1437,31 +1464,10 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     </div>
     <div class="recruit-list" id="portalList"><div class="empty-state">No portal targets added yet.</div></div>
   </div>
+  </div><!-- /portalBoard -->
 
-</div>
+</div><!-- /tab-recruiting -->
 
-<!-- ══════════════════════════════════════ UNIVERSE NEWS -->
-<div id="tab-universe" class="tab-panel">
-  <div class="card card-accent-red">
-    <div class="card-label">Add Universe Story</div>
-    <div class="form-row">
-      <div class="form-group" style="max-width:78px;"><label>Week</label><input type="text" id="newsWeek" placeholder="Wk 5"></div>
-      <div class="form-group"><label>Headline</label><input type="text" id="newsHeadline" placeholder="e.g. #2 Georgia upset at home by Tennessee"></div>
-    </div>
-    <div class="form-group mt-8">
-      <label>Details / Context</label>
-      <textarea id="newsDetail" placeholder="Playoff implications, ranking chaos, coaching carousel, big portal moves around the league..." rows="2"></textarea>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-      <button id="newsAddBtn" class="btn btn-accent" onclick="addNews()">+ Add Story</button>
-      <button id="newsCancelBtn" class="btn btn-ghost btn-sm" onclick="cancelEditNews()" style="display:none;">✕ Cancel Edit</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-label">Universe Feed</div>
-    <div class="news-list" id="newsList"><div class="empty-state">No universe news yet.<br>Log upsets, Top 25 movement, coaching carousel moves, and big portal signings from around your virtual world.</div></div>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════ DEVELOPMENT -->
 <div id="tab-devtab" class="tab-panel">
@@ -2093,10 +2099,9 @@ function switchTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name==='gamelog')    { renderSchedule(); renderSeasonSummary(); setTimeout(renderSeasonChart,60); const atEl=document.getElementById('allTimeStatsContent'); if(atEl&&atEl.style.display!=='none') renderAllTimeStats(); }
-  if(name==='recruiting') setTimeout(renderRecCharts,60);
+  if(name==='recruiting') { setTimeout(renderRecCharts,60); renderPortal(); }
   if(name==='storylines') renderStorylines();
-  if(name==='portal')     renderPortal();
-  if(name==='program')    setTimeout(renderBlueprintChart,60);
+  if(name==='program')    { setTimeout(renderBlueprintChart,60); renderNews(); }
   if(name==='devtab')     { renderPlayerList(); renderNilDemands(); setTimeout(renderDevCharts,60); }
   if(name==='statstab')   loadStatsTab();
   if(name==='analysis')   loadAnalysisTab();
@@ -2713,6 +2718,13 @@ function cancelEditRecruit(){
   document.getElementById('recIsTransfer').checked=false; document.getElementById('recIsDiamond').checked=false;
   document.getElementById('recAddBtn').textContent='+ Add to Board';
   document.getElementById('recCancelBtn').style.display='none';
+}
+function switchAcqBoard(board){
+  document.getElementById('hsBoard').style.display=board==='hs'?'':'none';
+  document.getElementById('portalBoard').style.display=board==='portal'?'':'none';
+  document.querySelectorAll('.acq-toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.board===board));
+  if(board==='portal') renderPortal();
+  if(board==='hs') setTimeout(renderRecCharts,60);
 }
 function updateRecruitStatus(id,val){ const r=S.recruits.find(x=>x.id===id); if(r){r.status=val;save('dh_recruits',S.recruits);renderRecruits();renderRecCharts();} }
 function removeRecruit(id){ if(!confirm('Remove this recruit from the board?')) return; S.recruits=S.recruits.filter(r=>r.id!==id); save('dh_recruits',S.recruits); renderRecruits(); renderRecCharts(); }
