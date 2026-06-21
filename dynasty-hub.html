@@ -820,6 +820,19 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .dev-stat .dl { font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);font-weight:700;margin-top:5px; }
 .finalize-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border); }
 .finalize-row:last-child { border-bottom:none; }
+/* ─── DYNASTY TIMELINE ─── */
+.dynasty-timeline { position:relative; padding-left:36px; }
+.dynasty-timeline::before { content:''; position:absolute; left:14px; top:24px; bottom:8px; width:2px; background:var(--border2); }
+.dt-entry { position:relative; margin-bottom:18px; }
+.dt-entry:last-child { margin-bottom:0; }
+.dt-dot { position:absolute; left:-30px; top:10px; width:20px; height:20px; border-radius:50%; background:var(--red); border:3px solid var(--bg); display:flex; align-items:center; justify-content:center; font-family:'Roboto Slab',serif; font-size:0.55rem; font-weight:900; color:#fff; }
+.dt-dot.current { background:var(--green); }
+.dt-card { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--red); padding:12px 14px; }
+.dt-card.current { border-left-color:var(--green); }
+.dt-season-num { font-family:'Roboto Slab',serif; font-weight:900; font-size:0.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text3); margin-bottom:5px; }
+.dt-record { font-family:'Roboto Slab',serif; font-weight:900; font-size:1.6rem; line-height:1; }
+.dt-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; font-size:0.74rem; color:var(--text2); }
+.dt-tag { background:var(--surface3); padding:2px 8px; border-radius:2px; font-size:0.7rem; }
 </style>
 </head>
 <body>
@@ -1141,10 +1154,10 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
   <div class="card card-accent-purple">
     <div class="flex-between" style="cursor:pointer;" onclick="toggleSeasonHistory(this)">
-      <div class="card-label" style="margin-bottom:0;">📚 Season History</div>
+      <div class="card-label" style="margin-bottom:0;">📖 Dynasty Timeline</div>
       <span style="font-size:0.73rem;color:var(--text3);font-weight:600;">▸ Show</span>
     </div>
-    <div id="seasonHistoryContent" style="margin-top:12px;display:none;"></div>
+    <div id="seasonHistoryContent" style="margin-top:14px;display:none;"></div>
   </div>
 </div>
 
@@ -2210,6 +2223,7 @@ function switchTab(name,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
+  localStorage.setItem('dh_lastTab', name);
   if(name==='planner')    loadEpGameSelector();
   if(name==='gamelog')    { renderSchedule(); renderSeasonSummary(); setTimeout(renderSeasonChart,60); const atEl=document.getElementById('allTimeStatsContent'); if(atEl&&atEl.style.display!=='none') renderAllTimeStats(); }
   if(name==='recruiting') { setTimeout(renderRecCharts,60); renderPortal(); }
@@ -3744,41 +3758,71 @@ function toggleAllTimeStats(btn){
 }
 
 function renderSeasonHistory(){
-  const el=document.getElementById('seasonHistoryContent');
-  if(!S.seasons.length){el.innerHTML='<div class="empty-state">No archived seasons yet.<br>Use "📅 New Season" at the end of each season to archive results and reset.</div>';return;}
-  el.innerHTML=S.seasons.map((s,i)=>`
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px 15px;margin-bottom:8px;">
-      <div class="flex-between" style="margin-bottom:8px;">
-        <div>
-          <span style="font-weight:800;font-size:0.9rem;color:#fff;">Season ${esc(s.seasonNum)}</span>
-          <span style="font-size:0.78rem;color:var(--text2);margin-left:8px;">${esc(s.team)}${s.conf?' · '+esc(s.conf):''}</span>
+  const el=document.getElementById('seasonHistoryContent'); if(!el) return;
+  const currentW=S.games.filter(g=>g.result==='W').length;
+  const currentL=S.games.filter(g=>g.result==='L').length;
+  const mkEntry=(s,idx,isCurrent)=>{
+    const wins=isCurrent?currentW:s.wins;
+    const losses=isCurrent?currentL:s.losses;
+    const rec=wins+'-'+losses;
+    const recColor=wins>losses?'var(--green)':wins<losses?'#f87171':'var(--text2)';
+    const rank=isCurrent?S.rank:s.finalRank;
+    const adGoals=isCurrent?S.adGoals:s.adGoals;
+    const goalsMet=(adGoals||[]).filter(g=>g.status==='done').length;
+    const recruits=isCurrent?S.recruits:s.recruits;
+    const topRecruit=recruits&&recruits.length?[...recruits].sort((a,b)=>(b.stars||0)-(a.stars||0))[0]:null;
+    const storylines=isCurrent?S.storylines:s.storylines;
+    const resolved=(storylines||[]).filter(sl=>sl.status==='resolved');
+    const active=(storylines||[]).filter(sl=>sl.status==='active');
+    const nilTotal=isCurrent?calcNil():s.nilTotal;
+    const notes=isCurrent?'':s.notes;
+    const heisman=isCurrent?S.heisman:s.heisman;
+    const heismanWinner=heisman&&heisman.find(h=>h.won);
+    const seasonNum=isCurrent?S.season:s.seasonNum;
+    const conf=isCurrent?S.conf:s.conf;
+    return `<div class="dt-entry">
+      <div class="dt-dot${isCurrent?' current':''}">${esc(String(seasonNum))}</div>
+      <div class="dt-card${isCurrent?' current':''}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="dt-season-num">Season ${esc(String(seasonNum))}${conf?' · '+esc(conf):''}${isCurrent?' <span style="background:var(--green);color:#fff;font-size:0.58rem;padding:1px 6px;border-radius:2px;margin-left:4px;font-weight:800;">IN PROGRESS</span>':''}</div>
+            <div class="dt-record" style="color:${recColor};">${wins}–${losses}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;">
+            ${rank?`<span style="font-family:'Roboto Slab',serif;font-weight:800;font-size:0.8rem;background:var(--red);color:#fff;padding:3px 9px;border-radius:2px;">#${esc(String(rank))}</span>`:''}
+            ${!isCurrent?`<button class="btn btn-ghost btn-sm" onclick="openArchiveRecap(${idx})" style="font-size:0.7rem;">📋 Recap</button>`:''}
+            <button class="btn btn-ghost btn-sm" onclick="toggleArchiveGames('tl_${isCurrent?'cur':idx}',this)" style="font-size:0.7rem;">▸ Games</button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="font-weight:800;font-size:1rem;color:${s.wins>s.losses?'var(--green)':'#f87171'};">${s.wins}–${s.losses}</span>
-          ${s.finalRank?`<span class="rank-badge" style="font-size:0.7rem;padding:3px 8px;">#${esc(s.finalRank)}</span>`:''}
-          <button class="btn btn-ghost btn-sm" onclick="openArchiveRecap(${i})">📋 Recap</button>
-          <button class="btn btn-ghost btn-sm" onclick="toggleArchiveGames(${i},this)">▸ Games</button>
+        <div class="dt-meta">
+          <span>🎯 <strong style="color:${goalsMet===3?'var(--green)':'var(--text2)'};">${goalsMet}/3</strong> AD goals</span>
+          ${recruits&&recruits.length?`<span>⭐ ${recruits.length} recruit${recruits.length>1?'s':''}</span>`:''}
+          ${topRecruit?`<span class="dt-tag">${'⭐'.repeat(topRecruit.stars||0)} ${esc(topRecruit.name||'')} ${esc(topRecruit.pos||'')}</span>`:''}
+          ${nilTotal?`<span>💰 ${nilTotal.toLocaleString()} DP NIL</span>`:''}
+          ${heismanWinner?`<span class="dt-tag">🏆 Heisman: ${esc(heismanWinner.name)}</span>`:''}
+        </div>
+        ${resolved.length||active.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;">
+          ${resolved.map(sl=>`<span class="dt-tag" style="border-left:2px solid var(--green);">✓ ${esc(sl.title)}</span>`).join('')}
+          ${active.map(sl=>`<span class="dt-tag" style="border-left:2px solid var(--red);">↻ ${esc(sl.title)}</span>`).join('')}
+        </div>`:''}
+        ${notes?`<div style="margin-top:8px;font-size:0.77rem;color:var(--text2);font-style:italic;border-left:2px solid var(--border2);padding-left:8px;">${esc(notes)}</div>`:''}
+        <div id="archiveGames_tl_${isCurrent?'cur':idx}" style="display:none;margin-top:10px;">
+          ${(isCurrent?S.games:s.games).length?[...(isCurrent?S.games:s.games)].sort((a,b)=>Number(a.week)-Number(b.week)).map(g=>`
+            <div style="display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
+              <span class="game-result ${g.result}" style="font-size:0.85rem;font-weight:800;width:16px;">${g.result}</span>
+              <span style="font-size:0.72rem;color:var(--text3);width:32px;flex-shrink:0;">Wk ${esc(String(g.week||'?'))}</span>
+              <span style="font-size:0.82rem;color:var(--text);flex:1;">${esc(g.opponent||'')}<span style="color:var(--text3);font-size:0.72rem;margin-left:5px;">${esc(g.location||'')}</span></span>
+              <span style="font-size:0.78rem;color:var(--text2);font-variant-numeric:tabular-nums;">${esc(g.score||'—')}</span>
+            </div>`).join(''):'<div class="empty-state" style="padding:8px;">No games logged.</div>'}
         </div>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:${s.notes?'8px':'0'};">
-        <span style="font-size:0.75rem;color:var(--text2);">🎯 AD Goals: <strong style="color:${s.adGoals.filter(g=>g.status==='done').length===3?'var(--green)':'var(--text)'};">${s.adGoals.filter(g=>g.status==='done').length}/3 met</strong></span>
-        <span style="font-size:0.75rem;color:var(--text2);">⭐ Recruits: <strong style="color:var(--text);">${s.recruits.length} tracked</strong></span>
-        ${s.nilTotal?`<span style="font-size:0.75rem;color:var(--text2);">💰 NIL: <strong style="color:var(--purple);">${s.nilTotal.toLocaleString()} DP</strong></span>`:''}
-      </div>
-      ${s.notes?`<div style="font-size:0.78rem;color:var(--text2);font-style:italic;border-left:2px solid var(--surface3);padding-left:8px;margin-top:4px;">${esc(s.notes)}</div>`:''}
-      <div id="archiveGames_${i}" style="display:none;margin-top:10px;">
-        ${s.games.length?[...s.games].sort((a,b)=>Number(a.week)-Number(b.week)).map(g=>`
-          <div style="display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
-            <span class="game-result ${g.result}" style="font-size:0.85rem;font-weight:800;width:16px;">${g.result}</span>
-            <span style="font-size:0.72rem;color:var(--text3);width:32px;flex-shrink:0;">Wk ${esc(g.week)}</span>
-            <span style="font-size:0.82rem;color:var(--text);flex:1;">${esc(g.opponent)}<span style="color:var(--text3);font-size:0.72rem;margin-left:5px;">${esc(g.location||'')}</span></span>
-            <span style="font-size:0.78rem;color:var(--text2);font-variant-numeric:tabular-nums;">${esc(g.score||'—')}</span>
-          </div>`).join(''):'<div class="empty-state" style="padding:8px;">No games logged.</div>'}
-      </div>
-    </div>`).join('');
+    </div>`;
+  };
+  const entries=[mkEntry(null,null,true),...S.seasons.map((s,i)=>mkEntry(s,i,false))];
+  el.innerHTML=`<div class="dynasty-timeline">${entries.join('')}</div>`;
 }
-function toggleArchiveGames(i,btn){
-  const el=document.getElementById('archiveGames_'+i); if(!el) return;
+function toggleArchiveGames(key,btn){
+  const el=document.getElementById('archiveGames_'+key); if(!el) return;
   const open=el.style.display!=='none';
   el.style.display=open?'none':'block';
   if(btn) btn.textContent=open?'▸ Games':'▾ Games';
@@ -4772,6 +4816,14 @@ function copyMoment(){
 // ════════════════════════════════════════ INIT
 applyTeamColors(S.teamColor);
 checkExportGlow();
+// Restore last active tab
+(function(){
+  const last=localStorage.getItem('dh_lastTab');
+  if(last&&document.getElementById('tab-'+last)){
+    const btn=document.querySelector('[onclick*="\''+last+'\'"]');
+    switchTab(last,btn||null);
+  }
+})();
 // Restore saved theme
 (function(){
   const saved=localStorage.getItem('dh_theme')||'dark';
