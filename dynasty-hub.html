@@ -1539,6 +1539,39 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     </div>
     <div class="recruit-list" id="recruitList"><div class="empty-state">No recruits added yet.</div></div>
   </div>
+
+  <div class="card">
+    <div class="flex-between" style="cursor:pointer;" onclick="toggleClassHistory(this)">
+      <div class="card-label" style="margin-bottom:0;">📚 Class History</div>
+      <span style="font-size:0.73rem;color:var(--text3);font-weight:700;">▸ Show</span>
+    </div>
+    <div id="classHistoryWrap" style="display:none;margin-top:14px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <select id="chStars" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+          <option value="all">All Stars</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5★</option>
+          <option value="4">⭐⭐⭐⭐ 4★</option>
+          <option value="3">⭐⭐⭐ 3★</option>
+          <option value="2">⭐⭐ 2★</option>
+        </select>
+        <select id="chPos" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+          <option value="all">All Positions</option>
+        </select>
+        <select id="chType" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+          <option value="all">HS + Portal</option>
+          <option value="hs">High School Only</option>
+          <option value="portal">Portal Only</option>
+        </select>
+        <select id="chStatus" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+          <option value="all">All Statuses</option>
+          <option value="signed">Signed</option>
+          <option value="committed">Committed+</option>
+        </select>
+      </div>
+      <div id="chSummary" style="margin-bottom:14px;"></div>
+      <div id="classHistoryContent"></div>
+    </div>
+  </div>
   </div><!-- /hsBoard -->
 
   <div id="portalBoard" style="display:none;">
@@ -2982,6 +3015,87 @@ function renderHeisman(){
 }
 
 // ════════════════════════════════════════ RECRUITING
+function toggleClassHistory(btn){
+  const wrap=document.getElementById('classHistoryWrap'); if(!wrap) return;
+  const open=wrap.style.display!=='none';
+  wrap.style.display=open?'none':'';
+  const lbl=btn?btn.querySelector('span:last-child'):null;
+  if(lbl) lbl.textContent=open?'▸ Show':'▾ Hide';
+  if(!open) { populateChPosFilter(); renderClassHistory(); }
+}
+function populateChPosFilter(){
+  const sel=document.getElementById('chPos'); if(!sel) return;
+  const allRecruits=[...S.recruits,...S.seasons.flatMap(s=>s.recruits||[])];
+  const positions=[...new Set(allRecruits.map(r=>(r.pos||'').toUpperCase().trim()).filter(Boolean))].sort();
+  const prev=sel.value;
+  sel.innerHTML='<option value="all">All Positions</option>'+positions.map(p=>`<option value="${p}">${p}</option>`).join('');
+  if(positions.includes(prev)) sel.value=prev;
+}
+function renderClassHistory(){
+  const stars=document.getElementById('chStars')?.value||'all';
+  const pos=(document.getElementById('chPos')?.value||'all').toUpperCase();
+  const type=document.getElementById('chType')?.value||'all';
+  const status=document.getElementById('chStatus')?.value||'all';
+  const el=document.getElementById('classHistoryContent'); if(!el) return;
+  const filterR=(r)=>{
+    if(stars!=='all'&&(r.stars||3)!==int(stars)) return false;
+    if(pos!=='ALL'&&(r.pos||'').toUpperCase().trim()!==pos) return false;
+    if(type==='hs'&&r.isTransfer) return false;
+    if(type==='portal'&&!r.isTransfer) return false;
+    if(status==='signed'&&r.status!=='signed') return false;
+    if(status==='committed'&&!['committed','signed'].includes(r.status)) return false;
+    return true;
+  };
+  const seasons=[{seasonNum:S.season,recruits:S.recruits,isCurrent:true},...S.seasons.map(s=>({seasonNum:s.seasonNum,recruits:s.recruits||[],isCurrent:false}))];
+  let totalMatch=0,total5=0,posTally={};
+  seasons.forEach(s=>{
+    s.recruits.filter(filterR).forEach(r=>{
+      totalMatch++;
+      if((r.stars||0)===5) total5++;
+      const p=(r.pos||'?').toUpperCase();
+      posTally[p]=(posTally[p]||0)+1;
+    });
+  });
+  const topPos=Object.entries(posTally).sort((a,b)=>b[1]-a[1]);
+  const sumEl=document.getElementById('chSummary');
+  if(sumEl){
+    if(!totalMatch){ sumEl.innerHTML='<div class="empty-state" style="padding:10px;">No recruits match this filter.</div>'; el.innerHTML=''; return; }
+    sumEl.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:2px;text-align:center;">
+        <div style="font-family:'Roboto Slab',serif;font-size:1.4rem;font-weight:800;color:var(--text);">${totalMatch}</div>
+        <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-top:3px;">Total</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:2px;text-align:center;">
+        <div style="font-family:'Roboto Slab',serif;font-size:1.4rem;font-weight:800;color:var(--text);">${total5}</div>
+        <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-top:3px;">5 Stars</div>
+      </div>
+      ${topPos.slice(0,4).map(([p,c])=>`<div style="background:var(--surface2);border:1px solid var(--border);padding:8px 14px;border-radius:2px;text-align:center;">
+        <div style="font-family:'Roboto Slab',serif;font-size:1.4rem;font-weight:800;color:var(--text);">${c}</div>
+        <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-top:3px;">${p}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  const html=seasons.map(s=>{
+    const filtered=s.recruits.filter(filterR);
+    if(!filtered.length) return '';
+    const sorted=[...filtered].sort((a,b)=>(b.stars||0)-(a.stars||0));
+    return `<div style="margin-bottom:12px;">
+      <div style="font-family:'Roboto Slab',serif;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+        Season ${esc(String(s.seasonNum))}${s.isCurrent?' <span style="background:var(--green);color:#fff;font-size:0.58rem;padding:1px 6px;border-radius:2px;">Current</span>':''}
+        <span style="font-weight:400;font-size:0.68rem;color:var(--text3);">${filtered.length} recruit${filtered.length>1?'s':''}</span>
+      </div>
+      ${sorted.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;margin-bottom:4px;">
+        <span style="font-size:0.8rem;flex-shrink:0;">${'⭐'.repeat(r.stars||0)}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--text);">${esc(r.name||'')}${r.isDiamond?' 💎':''}</div>
+          <div style="font-size:0.72rem;color:var(--text3);">${esc(r.pos||'')}${r.isTransfer?' · Portal':' · HS'}${r.nilDP?' · '+int(r.nilDP).toLocaleString()+' DP NIL':''}</div>
+        </div>
+        <span style="font-size:0.68rem;padding:2px 7px;border-radius:2px;background:var(--surface3);color:var(--text2);white-space:nowrap;">${esc(r.status||'')}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+  el.innerHTML=html||'<div class="empty-state" style="padding:10px;">No recruits match this filter.</div>';
+}
 function toggleRecruitForm(){
   const card=document.getElementById('recFormCard');
   const showing=card.style.display!=='none';
