@@ -121,18 +121,6 @@
 [data-theme="light"] .cmp-val { color: #1a1a1a; }
 [data-theme="light"] .game-result { color: #1a1a1a; }
 [data-theme="light"] .sched-result { color: #1a1a1a; }
-[data-theme="light"] .breakout-entry { background:rgba(var(--red-rgb,233,69,96),0.08); color:#333; }
-[data-theme="light"] .history-entry { color:#444; }
-[data-theme="light"] .history-entry strong { color:#1a1a1a; }
-[data-theme="light"] .player-card { background:#fff; }
-[data-theme="light"] .player-card.pipeline-card { background:rgba(245,158,11,0.06); }
-[data-theme="light"] .recruit-item { background:#fff; border-color:rgba(0,0,0,0.1); }
-[data-theme="light"] .depth-sel { background:#fff; color:#1a1a1a; border-color:rgba(0,0,0,0.18); }
-[data-theme="light"] .dev-filter-btn { background:#f8f5f0; color:#555; border-color:rgba(0,0,0,0.15); }
-[data-theme="light"] .dev-filter-btn.active { background:var(--red-dim); color:var(--red); border-color:var(--red-border); }
-[data-theme="light"] .chart-box { background:#fff; border-color:rgba(0,0,0,0.1); }
-[data-theme="light"] .chart-box-title { color:#444; }
-[data-theme="light"] .ovr-low { background:rgba(75,85,99,0.12); color:#555; border-color:rgba(75,85,99,0.3); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; position: relative; }
@@ -1559,22 +1547,22 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     </div>
     <div id="classHistoryWrap" style="display:none;margin-top:14px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-        <select id="chStars" onchange="renderClassHistory()" style="flex:1;min-width:130px;font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+        <select id="chStars" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
           <option value="all">All Stars</option>
           <option value="5">⭐⭐⭐⭐⭐ 5★</option>
           <option value="4">⭐⭐⭐⭐ 4★</option>
           <option value="3">⭐⭐⭐ 3★</option>
           <option value="2">⭐⭐ 2★</option>
         </select>
-        <select id="chPos" onchange="renderClassHistory()" style="flex:1;min-width:130px;font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+        <select id="chPos" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
           <option value="all">All Positions</option>
         </select>
-        <select id="chType" onchange="renderClassHistory()" style="flex:1;min-width:130px;font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+        <select id="chType" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
           <option value="all">HS + Portal</option>
           <option value="hs">High School Only</option>
           <option value="portal">Portal Only</option>
         </select>
-        <select id="chStatus" onchange="renderClassHistory()" style="flex:1;min-width:130px;font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
+        <select id="chStatus" onchange="renderClassHistory()" style="font-size:0.76rem;padding:5px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);">
           <option value="all">All Statuses</option>
           <option value="signed">Signed</option>
           <option value="committed">Committed+</option>
