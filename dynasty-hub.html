@@ -331,6 +331,7 @@ body > * { position: relative; z-index: 1; }
 .storyline-week { font-size:0.7rem; color:var(--text3); }
 .storyline-actions { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
 .storyline-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.storyline-grid .storyline-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .storyline-section-label { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--text3); margin:14px 0 8px; }
 /* ─── HELP MODAL ─── */
 .help-section { border-bottom: 1px solid var(--border); }
@@ -612,6 +613,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
 /* ─── GAME LOG ─── */
 .game-list { display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; }
+.game-list .game-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .game-item {
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 9px; padding: 13px 15px;
@@ -633,6 +635,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 
 /* ─── HEISMAN WATCH ─── */
 .heisman-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.heisman-grid .heisman-item:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .heisman-item {
   display: flex; align-items: flex-start; gap: 12px;
   padding: 13px 15px; border-radius: 9px;
