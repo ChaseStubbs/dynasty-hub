@@ -273,7 +273,7 @@ body > * { position: relative; z-index: 1; }
   padding: 9px 20px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center;
 }
-.matchup-stat-row > *:last-child { border-bottom: none; }
+/* removed: display:contents makes :last-child match the right column on every row, not the last row */
 .matchup-stat-mine {
   font-family: 'Roboto Slab', serif; font-size: 1.05rem; letter-spacing: 1px; color: #fff;
   justify-content: flex-start;
