@@ -2503,6 +2503,26 @@ function runGlobalSearch(q){
     icon:'🏈', name:(g.week?'Week '+g.week+' · ':'')+g.opponent, meta:(g.location||'')+(g.result?' · '+g.result:''),
     tag:'Game', action:()=>{ document.querySelector('[onclick*="gamelog"]').click(); toggleSearch(); }
   }))});
+  // Past Recruits (archived seasons)
+  const pastRecruits=[];
+  S.seasons.forEach(s=>(s.recruits||[]).forEach(r=>{
+    if((r.name||'').toLowerCase().includes(term)||(r.pos||'').toLowerCase().includes(term))
+      pastRecruits.push({...r, _season:s.seasonNum});
+  }));
+  if(pastRecruits.length) groups.push({label:'Past Recruits',items:pastRecruits.slice(0,6).map(r=>({
+    icon:'📚', name:r.name, meta:(r.pos||'')+(r.stars?' · '+'⭐'.repeat(r.stars):'')+(r.status?' · '+r.status:''),
+    tag:'S'+r._season, action:()=>{ document.querySelector('[onclick*="gamelog"]').click(); setTimeout(()=>{ const btn=document.querySelector('[onclick*="toggleSeasonHistory"]'); if(btn&&document.getElementById('seasonHistoryContent').style.display==='none') btn.click(); },300); toggleSearch(); }
+  }))});
+  // Past Storylines (archived seasons)
+  const pastStories=[];
+  S.seasons.forEach(s=>(s.storylines||[]).forEach(sl=>{
+    if((sl.title||'').toLowerCase().includes(term))
+      pastStories.push({...sl, _season:s.seasonNum});
+  }));
+  if(pastStories.length) groups.push({label:'Past Storylines',items:pastStories.slice(0,4).map(sl=>({
+    icon:'📖', name:sl.title, meta:sl.status+(sl.resolvedNote?' — '+sl.resolvedNote:''),
+    tag:'S'+sl._season, action:()=>{ document.querySelector('[onclick*="gamelog"]').click(); setTimeout(()=>{ const btn=document.querySelector('[onclick*="toggleSeasonHistory"]'); if(btn&&document.getElementById('seasonHistoryContent').style.display==='none') btn.click(); },300); toggleSearch(); }
+  }))});
   if(!groups.length){ res.style.display=''; res.innerHTML='<div class="sr-empty">No results for "'+esc(q)+'"</div>'; return; }
   res.style.display='';
   res.innerHTML=groups.map(g=>`
