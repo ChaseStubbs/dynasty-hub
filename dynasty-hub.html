@@ -1482,7 +1482,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   <div class="card nil-summary-card card-accent-purple">
     <div class="card-label">💰 NIL Spend Tracker</div>
     <div id="nilSummaryContent"></div>
-    <div style="height:140px;position:relative;margin-top:10px;"><canvas id="nilChart"></canvas></div>
+    <div id="nilChartWrap" style="height:140px;position:relative;margin-top:10px;display:none;"><canvas id="nilChart"></canvas></div>
   </div>
 
   <div class="card" id="recFormCard" style="display:none;">
@@ -3274,9 +3274,11 @@ function renderRecCharts(){
   mkChart('starsChart',{type:'bar',data:{labels:['5★','4★','3★','2★'],datasets:[{data:[5,4,3,2].map(n=>S.recruits.filter(r=>r.stars===n).length),backgroundColor:['#f59e0b','#3b82f6','#22c55e','#4b5563'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{stepSize:1,font:{size:10},color:'#4b5563'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{font:{size:11},color:'#6b7280'}}}}});
   const nilR=S.recruits.filter(r=>r.nilDP>0).slice(0,8);
   if(nilR.length){
+    document.getElementById('nilChartWrap').style.display='';
     document.getElementById('nilSummaryContent').innerHTML=`<span style="font-size:0.81rem;color:var(--text2);">Total NIL spend: <strong style="color:var(--purple);">${nilTotal.toLocaleString()} DP</strong> across ${nilR.length} player${nilR.length>1?'s':''}.</span>`;
     mkChart('nilChart',{type:'bar',data:{labels:nilR.map(r=>r.name.split(' ').pop()),datasets:[{data:nilR.map(r=>r.nilDP),backgroundColor:nilR.map(r=>['committed','signed'].includes(r.status)?'rgba(167,139,250,0.8)':'rgba(167,139,250,0.35)'),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.toLocaleString()} DP`}}},scales:{x:{ticks:{font:{size:9},color:'#4b5563'},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Dynasty Points',font:{size:9},color:'#4b5563'}},y:{ticks:{font:{size:10},color:'#6b7280'}}}}});
   } else {
+    document.getElementById('nilChartWrap').style.display='none';
     document.getElementById('nilSummaryContent').innerHTML='<div class="empty-state" style="padding:12px;">No NIL offers tracked yet. Add a DP amount when adding recruits to see spend here.</div>';
     if(CH['nilChart']){CH['nilChart'].destroy();delete CH['nilChart'];}
   }
