@@ -26,7 +26,11 @@
 22. **Position-specific player stats** — structured stat fields per position group (QB, RB, WR, TE, OL, DE/DL, LB, CB, S, K, P) replacing free-text entry
 23. **→ Dev push from boards** — per-player button on committed/signed recruits and portal targets to push directly to Development tab mid-season; inline OVR input; duplicate guard in Finalize Class
 24. **Prospect Pipeline** — pushed players appear in a separate Pipeline section in Dev tab with Enroll → button; source badges (Recruit / Portal / Manual) on every player card
-25. **🗂 Depth Chart tab** — dedicated tab with 3-deep manual dropdown depth chart; Offense / Defense / Special Teams sections; pulls from Dev roster; fully persisted
+25. **🗂 Depth Chart tab** — dedicated tab with 3-deep depth chart; text input per slot (type any name or pick from Dev roster autocomplete); works from Season 1; needs indicator highlights unfilled starter positions
+26. **Stadium Premium aesthetic** — midnight navy theme; full-bleed team-color card headers; square corners; 2× stat numbers; team-color labels; deeper surface hierarchy
+27. **Tab restructure** — merged Recruiting + Portal (toggle), merged Program + Universe; logical tab order; Depth Chart moved next to Game Planner; Storylines moved to end
+28. **Clutter cleanup** — Recruiting/Portal add forms hidden behind button; Facilities and Staff collapsible by default in Program
+29. **Auto-flow connections** — Game Planner game selection auto-seeds Analysis matchup opponent; active Storylines appear as one-tap key point suggestions when a game is selected
 
 ---
 
