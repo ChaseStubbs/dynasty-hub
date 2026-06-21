@@ -818,6 +818,14 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .dev-stat { background:var(--surface2);border:1px solid var(--border);border-radius:0;padding:12px 14px;text-align:center;flex:1;min-width:70px; }
 .dev-stat .dv { font-size:1.8rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;font-family:'Roboto Slab',serif;line-height:1; }
 .dev-stat .dl { font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);font-weight:700;margin-top:5px; }
+.sr-group-label { font-family:'Roboto Slab',serif; font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text3); padding:8px 14px 4px; }
+.sr-item { display:flex; align-items:center; gap:10px; padding:9px 14px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .1s; }
+.sr-item:hover { background:var(--surface2); }
+.sr-item:last-child { border-bottom:none; }
+.sr-item-name { font-weight:700; font-size:0.85rem; color:var(--text); }
+.sr-item-meta { font-size:0.75rem; color:var(--text3); }
+.sr-item-tag { font-size:0.67rem; padding:1px 6px; border-radius:2px; background:var(--surface3); color:var(--text2); }
+.sr-empty { padding:16px 14px; font-size:0.82rem; color:var(--text3); text-align:center; }
 .finalize-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border); }
 .finalize-row:last-child { border-bottom:none; }
 /* ─── DYNASTY TIMELINE ─── */
@@ -879,6 +887,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     <button class="header-edit-btn" onclick="document.getElementById('importFile').click()">📂 Import</button>
     <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(this)">
     <button class="header-edit-btn" onclick="openSetup()">⚙ Setup</button>
+    <button class="header-edit-btn" onclick="toggleSearch()" title="Search players, recruits, storylines">🔍</button>
     <button class="header-edit-btn" id="themeToggleBtn" onclick="toggleTheme()" style="border-color:rgba(245,240,220,0.25);" title="Switch between Chalkboard and Whiteboard view">☀️</button>
     <button class="header-edit-btn" onclick="openModal('helpModal')" style="border-color:rgba(167,139,250,0.3);color:var(--purple);">? Help</button>
     <button class="header-edit-btn" onclick="openNewSeasonModal()" style="border-color:rgba(245,158,11,0.3);color:var(--gold);">📅 New Season</button>
@@ -896,6 +905,15 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   <button class="tab-btn" onclick="switchTab('devtab',this)">💎 Development</button>
   <button class="tab-btn" onclick="switchTab('program',this)">🏛 Program</button>
   <button class="tab-btn" onclick="switchTab('storylines',this)">📖 Storylines</button>
+</div>
+
+<div id="globalSearchBar" style="display:none;background:var(--surface);border-bottom:1px solid var(--border2);padding:10px 20px;position:relative;z-index:500;">
+  <div style="max-width:940px;margin:0 auto;position:relative;">
+    <input type="text" id="globalSearchInput" placeholder="Search players, recruits, portal, storylines..." oninput="runGlobalSearch(this.value)" onkeydown="if(event.key==='Escape')toggleSearch()"
+      style="width:100%;font-size:0.9rem;padding:9px 14px 9px 36px;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);">
+    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none;">🔍</span>
+    <div id="globalSearchResults" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:2px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:999;max-height:420px;overflow-y:auto;"></div>
+  </div>
 </div>
 
 <div class="content">
@@ -2398,6 +2416,67 @@ function saveSetup(){
 }
 
 // ════════════════════════════════════════ HEADER
+function toggleSearch(){
+  const bar=document.getElementById('globalSearchBar');
+  const inp=document.getElementById('globalSearchInput');
+  const open=bar.style.display!=='none';
+  bar.style.display=open?'none':'';
+  if(!open){ inp.value=''; document.getElementById('globalSearchResults').style.display='none'; inp.focus(); }
+}
+function runGlobalSearch(q){
+  const res=document.getElementById('globalSearchResults');
+  const term=q.trim().toLowerCase();
+  if(!term){ res.style.display='none'; return; }
+  const groups=[];
+  // Players (Dev roster)
+  const players=S.players.filter(p=>(p.name||'').toLowerCase().includes(term)||(p.pos||'').toLowerCase().includes(term));
+  if(players.length) groups.push({label:'Development Roster',items:players.slice(0,5).map(p=>({
+    icon:'💎', name:p.name, meta:(p.pos||'')+(p.overall?' · OVR '+p.overall:'')+(p.year?' · '+p.year:''),
+    tag:p.isPipeline?'Pipeline':'Roster', action:()=>{ document.querySelector('[onclick*="devtab"]').click(); toggleSearch(); }
+  }))});
+  // Recruits
+  const recruits=S.recruits.filter(r=>(r.name||'').toLowerCase().includes(term)||(r.pos||'').toLowerCase().includes(term));
+  if(recruits.length) groups.push({label:'Recruiting Board',items:recruits.slice(0,5).map(r=>({
+    icon:'⭐', name:r.name, meta:(r.pos||'')+(r.stars?' · '+'⭐'.repeat(r.stars):'')+(r.status?' · '+r.status:''),
+    tag:'HS Recruit', action:()=>{ document.querySelector('[onclick*="recruiting"]').click(); toggleSearch(); }
+  }))});
+  // Portal
+  const portal=S.portal.filter(p=>(p.name||'').toLowerCase().includes(term)||(p.pos||'').toLowerCase().includes(term)||(p.prevSchool||'').toLowerCase().includes(term));
+  if(portal.length) groups.push({label:'Transfer Portal',items:portal.slice(0,5).map(p=>({
+    icon:'🚪', name:p.name, meta:(p.pos||'')+(p.prevSchool?' from '+p.prevSchool:'')+(p.status?' · '+p.status:''),
+    tag:'Portal', action:()=>{ document.querySelector('[onclick*="recruiting"]').click(); setTimeout(()=>switchAcqBoard('portal'),100); toggleSearch(); }
+  }))});
+  // Storylines
+  const stories=S.storylines.filter(s=>(s.title||'').toLowerCase().includes(term)||(s.tags||'').toLowerCase().includes(term));
+  if(stories.length) groups.push({label:'Storylines',items:stories.slice(0,4).map(s=>({
+    icon:'📖', name:s.title, meta:s.status, tag:s.status,
+    action:()=>{ document.querySelector('[onclick*="storylines"]').click(); toggleSearch(); }
+  }))});
+  // Schedule
+  const games=S.schedule.filter(g=>(g.opponent||'').toLowerCase().includes(term));
+  if(games.length) groups.push({label:'Schedule',items:games.slice(0,3).map(g=>({
+    icon:'🏈', name:(g.week?'Week '+g.week+' · ':'')+g.opponent, meta:(g.location||'')+(g.result?' · '+g.result:''),
+    tag:'Game', action:()=>{ document.querySelector('[onclick*="gamelog"]').click(); toggleSearch(); }
+  }))});
+  if(!groups.length){ res.style.display=''; res.innerHTML='<div class="sr-empty">No results for "'+esc(q)+'"</div>'; return; }
+  res.style.display='';
+  res.innerHTML=groups.map(g=>`
+    <div class="sr-group-label">${g.label}</div>
+    ${g.items.map(item=>`<div class="sr-item" onclick="${item.action.toString().replace(/"/g,"'")}">
+      <span style="font-size:1rem;flex-shrink:0;">${item.icon}</span>
+      <div style="flex:1;min-width:0;">
+        <div class="sr-item-name">${esc(item.name||'')}</div>
+        <div class="sr-item-meta">${esc(item.meta||'')}</div>
+      </div>
+      <span class="sr-item-tag">${esc(item.tag||'')}</span>
+    </div>`).join('')}
+  `).join('');
+  // Wire click handlers after render
+  res.querySelectorAll('.sr-item').forEach((el,i)=>{
+    const flat=groups.flatMap(g=>g.items);
+    el.onclick=flat[i].action;
+  });
+}
 function toggleTheme(){
   const isLight=document.documentElement.getAttribute('data-theme')==='light';
   const next=isLight?'dark':'light';
