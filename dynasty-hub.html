@@ -101,6 +101,26 @@
 [data-theme="light"] select option { background: #fff; color: #1a1a1a; }
 [data-theme="light"] .card { background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
 [data-theme="light"] body::before { opacity: 0.015; }
+/* Header stays dark — keep its text white */
+[data-theme="light"] .header-meta-item { color: rgba(255,255,255,0.55); }
+[data-theme="light"] .header-meta-item strong { color: #fff; }
+[data-theme="light"] .hstat-lbl { color: rgba(255,255,255,0.5); }
+/* Hardcoded #fff stat numbers — flip dark in light mode */
+[data-theme="light"] .class-stat .cv,
+[data-theme="light"] .dev-stat .dv,
+[data-theme="light"] .stat-pill .val,
+[data-theme="light"] .dp-stat .dv,
+[data-theme="light"] .card-title-lg,
+[data-theme="light"] .bp-val { color: #1a1a1a; }
+[data-theme="light"] .dp-stat.warning .dv { color: var(--gold); }
+[data-theme="light"] .dp-stat.danger .dv { color: var(--red); }
+[data-theme="light"] .pc-player-name { color: #1a1a1a; }
+[data-theme="light"] .matchup-team-name { color: #1a1a1a; }
+[data-theme="light"] .matchup-stat-mine,
+[data-theme="light"] .matchup-stat-opp { color: #1a1a1a; }
+[data-theme="light"] .cmp-val { color: #1a1a1a; }
+[data-theme="light"] .game-result { color: #1a1a1a; }
+[data-theme="light"] .sched-result { color: #1a1a1a; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; position: relative; }
