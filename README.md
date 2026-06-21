@@ -30,18 +30,19 @@ Your dynasty data is saved in your **browser's local storage** — it stays on y
 
 ## Features
 
-- 📋 Game Planner — schedule-driven game picker, key points with active storyline suggestions, pre/post-game notes, auto-seeds Analysis matchup card
+- 📋 Game Planner — schedule-driven game picker, key points with active storyline suggestions, pre/post-game notes, auto-seeds Analysis matchup card; remembers your last tab
 - 📖 Storyline Tracker — manage active, dormant, and resolved narrative arcs
-- 🏈 Game Log — log results, season schedule, Heisman watch
+- 🏈 Game Log — log results, season schedule, Heisman watch, Dynasty Timeline
 - 📊 Season Stats — team offense/defense, position-specific player stats, awards & honors
 - 📈 Analysis — This Week's Matchup card, Season Comparison, and Player Comparison tool
-- ⭐ Recruiting Board — track targets, NIL spend, class overview and charts; push committed players directly to Dev mid-season
-- 🚪 Transfer Portal — separate portal board with NIL tracking and mid-season Dev push
-- 🏛 Program / Blueprint — NIL budget, facilities, coaching staff
+- ⭐ Recruiting — HS board + Transfer Portal toggle, NIL spend, class overview, push committed players to Dev; Recruiting Class History with per-season view and filters
+- 🏛 Program — NIL budget, facilities, coaching staff, universe news feed
 - 💎 Player Development — roster progression with Prospect Pipeline, source badges, OVR history, NIL demands, class finalization
 - 🗂 Depth Chart — 3-deep depth chart (Offense / Defense / Special Teams); type any name or pick from Dev roster, works from Season 1
-- 📰 Universe / News — dynasty news feed and AD goals
+- 📖 Dynasty Timeline — visual season-by-season chapter view with record, rank, top recruits, storylines, and notes per season
+- 🔍 Global Search — search players, recruits, portal, storylines, and archived seasons from any tab
 - 🎨 Team Colors + Logo — 130+ FBS team color presets, custom logo upload; team color themes the entire UI
+- ☀️🌙 Light / Dark mode — Whiteboard (light) and Chalkboard (dark) toggle; preference saved automatically
 - 📋 Season Recap — one-click formatted recap for YouTube descriptions and posts
 - 🏆 All-Time Series Stats — career record and totals across all archived seasons
 - 📤 Share a Moment — generate shareable game results, player highlights, and recruiting wins for Discord and group chats

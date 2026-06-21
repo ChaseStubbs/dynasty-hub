@@ -31,6 +31,12 @@
 27. **Tab restructure** — merged Recruiting + Portal (toggle), merged Program + Universe; logical tab order; Depth Chart moved next to Game Planner; Storylines moved to end
 28. **Clutter cleanup** — Recruiting/Portal add forms hidden behind button; Facilities and Staff collapsible by default in Program
 29. **Auto-flow connections** — Game Planner game selection auto-seeds Analysis matchup opponent; active Storylines appear as one-tap key point suggestions when a game is selected
+30. **Roboto Slab typography** — replaced Bebas Neue/Barlow Condensed with Roboto Slab (700/800/900 weight); football program / printed document feel throughout
+31. **Light / Dark mode toggle** — ☀️🌙 button in header switches between Chalkboard (dark navy) and Whiteboard (light) themes; preference persists via localStorage
+32. **Tab memory** — app restores to the last-viewed tab on reload
+33. **Dynasty Timeline** — upgraded Season History into a visual chapter-based timeline; per-season record, rank, top recruit, storylines, AD goals, expandable game log
+34. **Global Search** — 🔍 header button searches players, recruits, portal, storylines, schedule, and all archived season data; grouped results with one-click navigation
+35. **Recruiting Class History** — per-season class view in Recruiting tab with filters (stars, position, HS/portal, status); aggregate summary bar showing totals across all matched seasons
 
 ---
 
