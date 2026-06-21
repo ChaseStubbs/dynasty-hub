@@ -330,7 +330,7 @@ body > * { position: relative; z-index: 1; }
 .storyline-tag { font-size:0.68rem; font-weight:700; background:var(--surface3); border:1px solid var(--border2); border-radius:4px; padding:2px 8px; color:var(--text2); }
 .storyline-week { font-size:0.7rem; color:var(--text3); }
 .storyline-actions { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
-.storyline-grid { display:flex; flex-direction:column; gap:10px; }
+.storyline-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .storyline-section-label { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--text3); margin:14px 0 8px; }
 /* ─── HELP MODAL ─── */
 .help-section { border-bottom: 1px solid var(--border); }
@@ -426,7 +426,7 @@ body > * { position: relative; z-index: 1; }
 }
 
 /* ─── LAYOUT ─── */
-.content { padding: 18px 20px; max-width: 940px; margin: 0 auto; }
+.content { padding: 18px 20px; max-width: 1200px; margin: 0 auto; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
@@ -539,9 +539,10 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .tp-add-row input { flex: 1; }
 
 /* ─── AD GOALS ─── */
+.ad-goals-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:10px; }
 .ad-goal {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 14px 16px; border-radius: 9px; margin-bottom: 8px;
+  display: flex; flex-direction:column; gap: 10px;
+  padding: 14px 16px; border-radius: 9px;
   background: var(--surface2); border: 1px solid var(--border);
   transition: all 0.2s;
 }
@@ -554,7 +555,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   flex-shrink: 0; margin-top: 1px;
 }
 .ad-goal.done .ad-goal-num { background: var(--green); }
-.ad-goal-body { flex: 1; }
+.ad-goal-body { flex: 1; min-width:0; }
 .ad-goal-text { font-size: 0.88rem; font-weight: 600; color: var(--text); }
 .ad-goal.done .ad-goal-text { text-decoration: line-through; color: var(--text3); }
 .ad-goal-status { font-size: 0.71rem; color: var(--text3); margin-top: 3px; }
@@ -920,7 +921,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 </div>
 
 <div id="globalSearchBar" style="display:none;background:var(--surface);border-bottom:1px solid var(--border2);padding:10px 20px;position:relative;z-index:500;">
-  <div style="max-width:940px;margin:0 auto;position:relative;">
+  <div style="max-width:1200px;margin:0 auto;position:relative;">
     <input type="text" id="globalSearchInput" placeholder="Search players, recruits, portal, storylines..." oninput="runGlobalSearch(this.value)" onkeydown="if(event.key==='Escape')toggleSearch()"
       style="width:100%;font-size:0.9rem;padding:9px 14px 9px 36px;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);">
     <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none;">🔍</span>
@@ -2783,17 +2784,19 @@ function toggleGoal(i){ S.adGoals[i].status=S.adGoals[i].status==='done'?'pendin
 function renderADGoals(){
   const el=document.getElementById('adGoalsList');
   const labels={pending:'Not Started',done:'✓ Completed'};
-  el.innerHTML=S.adGoals.map((g,i)=>`
+  el.innerHTML=`<div class="ad-goals-grid">${S.adGoals.map((g,i)=>`
     <div class="ad-goal ${g.status==='done'?'done':''}">
-      <div class="ad-goal-num">${i+1}</div>
-      <div class="ad-goal-body">
-        <div class="ad-goal-text">${g.text||`<span style="color:var(--text3);font-style:italic;font-weight:400;">Goal ${i+1} not set</span>`}</div>
-        <div class="ad-goal-status">${labels[g.status]||'Not Started'}</div>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div class="ad-goal-num">${i+1}</div>
+        <div class="ad-goal-body">
+          <div class="ad-goal-text">${g.text||`<span style="color:var(--text3);font-style:italic;font-weight:400;">Goal ${i+1} not set</span>`}</div>
+          <div class="ad-goal-status">${labels[g.status]||'Not Started'}</div>
+        </div>
       </div>
       <div class="ad-goal-actions">
-        <button class="btn btn-sm ${g.status==='done'?'btn-ghost':'btn-green'}" onclick="toggleGoal(${i})">${g.status==='done'?'Undo':'Mark Complete'}</button>
+        <button class="btn btn-sm ${g.status==='done'?'btn-ghost':'btn-green'}" onclick="toggleGoal(${i})" style="width:100%;">${g.status==='done'?'Undo':'Mark Complete'}</button>
       </div>
-    </div>`).join('');
+    </div>`).join('')}</div>`;
   if(S.adGoals.every(g=>g.status==='done')){
     el.innerHTML+=`<div style="background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:9px;padding:12px 16px;text-align:center;font-weight:800;color:var(--green);font-size:0.86rem;margin-top:10px;letter-spacing:0.3px;">🎉 All AD expectations met this season!</div>`;
   }
