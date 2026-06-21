@@ -45,7 +45,7 @@
 <title>Dynasty Content Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700;800;900&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
 :root {
@@ -124,15 +124,15 @@ body > * { position: relative; z-index: 1; }
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 .team-logo-wrap img { width:100%; height:100%; object-fit:contain; padding:5px; }
-.team-logo-initials { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:#fff; letter-spacing:1px; text-align:center; line-height:1; }
+.team-logo-initials { font-family:'Roboto Slab',serif; font-size:1.5rem; color:#fff; letter-spacing:1px; text-align:center; line-height:1; }
 .team-eyebrow {
-  font-family:'Bebas Neue',sans-serif;
-  font-size: 0.7rem; letter-spacing: 5px; text-transform: uppercase;
+  font-family:'Roboto Slab',serif; font-weight:700;
+  font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
   color: var(--red); margin-bottom: 2px; opacity: 0.85;
 }
 .header-wordmark {
-  font-family:'Bebas Neue',sans-serif;
-  font-size:0.62rem; letter-spacing:4px; text-transform:uppercase;
+  font-family:'Roboto Slab',serif; font-weight:700;
+  font-size:0.6rem; letter-spacing:2px; text-transform:uppercase;
   color:var(--text3); margin-top:3px;
 }
 /* ─── EXPORT NUDGE — lower-third broadcast style ─── */
@@ -155,8 +155,8 @@ body > * { position: relative; z-index: 1; }
 .nudge-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
 .nudge-body { flex:1; }
 .nudge-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 3px;
+  font-family: 'Roboto Slab', serif; font-weight: 700;
+  font-size: 0.9rem; letter-spacing: 0.5px; color: var(--gold); margin-bottom: 3px;
 }
 .nudge-msg { font-size:0.76rem; color:var(--text2); line-height:1.5; }
 .nudge-actions { display:flex; gap:8px; margin-top:10px; }
@@ -175,7 +175,7 @@ body > * { position: relative; z-index: 1; }
   padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
 }
 .matchup-week-badge {
-  font-family:'Bebas Neue',sans-serif; font-size:0.75rem; letter-spacing:3px;
+  font-family:'Roboto Slab',serif; font-size:0.75rem; font-weight:700; letter-spacing:1px;
   color:var(--red); background:var(--red-mid); border:1px solid var(--red-border);
   border-radius:4px; padding:2px 10px;
 }
@@ -186,19 +186,19 @@ body > * { position: relative; z-index: 1; }
 .matchup-team { display: flex; flex-direction: column; }
 .matchup-team.away { text-align: right; align-items: flex-end; }
 .matchup-team-name {
-  font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px;
+  font-family: 'Roboto Slab', serif; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px;
   color: #fff; line-height: 1; margin-bottom: 2px;
 }
 .matchup-team-rank {
-  font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 2px;
+  font-family: 'Roboto Slab', serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px;
   color: var(--red); margin-bottom: 4px;
 }
 .matchup-record {
-  font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 1px;
+  font-family: 'Roboto Slab', serif; font-size: 1rem; font-weight: 700; letter-spacing: 0;
   color: var(--text2);
 }
 .matchup-vs {
-  font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 3px;
+  font-family: 'Roboto Slab', serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px;
   color: var(--text3); text-align: center;
 }
 .matchup-stats-grid {
@@ -214,11 +214,11 @@ body > * { position: relative; z-index: 1; }
 }
 .matchup-stat-row > *:last-child { border-bottom: none; }
 .matchup-stat-mine {
-  font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 1px; color: #fff;
+  font-family: 'Roboto Slab', serif; font-size: 1.05rem; letter-spacing: 1px; color: #fff;
   justify-content: flex-start;
 }
 .matchup-stat-opp {
-  font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 1px; color: var(--text2);
+  font-family: 'Roboto Slab', serif; font-size: 1.05rem; letter-spacing: 1px; color: var(--text2);
   justify-content: flex-end; text-align: right;
 }
 .matchup-stat-label {
@@ -232,10 +232,10 @@ body > * { position: relative; z-index: 1; }
 
 /* ─── STAT COMPARISON ─── */
 .cmp-row { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:6px; margin-bottom:10px; }
-.cmp-label { font-family:'Bebas Neue',sans-serif; font-size:0.78rem; letter-spacing:2px; color:var(--text2); text-align:center; white-space:nowrap; min-width:120px; padding:0 8px; }
+.cmp-label { font-family:'Roboto Slab',serif; font-size:0.78rem; letter-spacing:2px; color:var(--text2); text-align:center; white-space:nowrap; min-width:120px; padding:0 8px; }
 .cmp-side { display:flex; align-items:center; gap:6px; }
 .cmp-side.left { flex-direction:row-reverse; }
-.cmp-val { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:1px; color:#fff; white-space:nowrap; min-width:36px; text-align:center; }
+.cmp-val { font-family:'Roboto Slab',serif; font-size:1rem; letter-spacing:1px; color:#fff; white-space:nowrap; min-width:36px; text-align:center; }
 .cmp-val.left { text-align:right; }
 .cmp-bar-track { flex:1; height:8px; background:var(--surface3); border-radius:4px; overflow:hidden; min-width:60px; max-width:140px; }
 .cmp-bar-fill { height:100%; border-radius:4px; transition:width 0.4s cubic-bezier(0.22,1,0.36,1); }
@@ -245,7 +245,7 @@ body > * { position: relative; z-index: 1; }
 .cmp-legend { display:flex; gap:14px; align-items:center; }
 .cmp-legend-item { display:flex; align-items:center; gap:5px; font-size:0.72rem; font-weight:700; color:var(--text2); }
 .cmp-legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
-.cmp-section-head { font-family:'Bebas Neue',sans-serif; font-size:0.78rem; letter-spacing:3px; color:var(--text3); margin:14px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px; }
+.cmp-section-head { font-family:'Roboto Slab',serif; font-size:0.78rem; letter-spacing:3px; color:var(--text3); margin:14px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px; }
 .cmp-winner { color:var(--gold) !important; }
 .cmp-empty { text-align:center; padding:24px; color:var(--text3); font-size:0.82rem; }
 
@@ -258,7 +258,7 @@ body > * { position: relative; z-index: 1; }
 .pc-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
 .pc-card.side-a::before { background:linear-gradient(90deg,var(--red),transparent); }
 .pc-card.side-b::before { background:linear-gradient(90deg,var(--purple),transparent); }
-.pc-player-name { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:1.5px; color:#fff; line-height:1; margin-bottom:4px; }
+.pc-player-name { font-family:'Roboto Slab',serif; font-size:1.4rem; letter-spacing:1.5px; color:#fff; line-height:1; margin-bottom:4px; }
 .pc-player-meta { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
 .pc-season-badge { font-size:0.65rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; background:var(--surface3); border:1px solid var(--border2); border-radius:4px; padding:2px 7px; color:var(--text3); }
 .pc-stat-line { font-size:0.82rem; color:var(--text2); line-height:1.7; white-space:pre-wrap; }
@@ -301,19 +301,19 @@ body > * { position: relative; z-index: 1; }
 .color-result-swatch { width:20px; height:20px; border-radius:4px; flex-shrink:0; }
 .logo-upload-preview { display:flex; align-items:center; gap:10px; margin-top:8px; }
 .logo-upload-preview img { width:48px; height:48px; object-fit:contain; border-radius:8px; background:var(--surface2); border:1px solid var(--border2); padding:3px; }
-.header h1 { font-family:'Bebas Neue',sans-serif; font-size: 2.1rem; font-weight: 400; color: #fff; letter-spacing: 2px; line-height: 1; }
+.header h1 { font-family:'Roboto Slab',serif; font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; line-height: 1; }
 .header-meta { display: flex; gap: 18px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
 .header-meta-item { font-size: 0.72rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
 .header-meta-item strong { color: var(--text); font-weight: 600; }
 .header-center { display:flex; align-items:center; gap:0; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:10px 0; flex-shrink:0; }
 .hstat { display:flex; flex-direction:column; align-items:center; padding:0 20px; min-width:82px; }
-.hstat-val { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; color:#fff; letter-spacing:1.5px; line-height:1; white-space:nowrap; }
+.hstat-val { font-family:'Roboto Slab',serif; font-size:1.1rem; font-weight:800; color:#fff; letter-spacing:0; line-height:1; white-space:nowrap; }
 .hstat-lbl { font-size:0.56rem; text-transform:uppercase; letter-spacing:1.8px; color:var(--text3); margin-top:4px; font-weight:600; }
 .hstat-div { width:1px; background:var(--border); height:28px; flex-shrink:0; }
 .header-center .record-badge,.header-center .rank-badge,.header-center .rank-badge.unranked { background:none!important;border:none!important;padding:0!important;box-shadow:none!important;border-radius:0!important; }
-.header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: relative; }
+.header-right { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; position: relative; }
 .record-badge {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Roboto Slab', serif;
   font-size: 1.6rem; letter-spacing: 2px; color: #fff;
   background: var(--surface2);
   border: 1px solid var(--border2);
@@ -323,7 +323,7 @@ body > * { position: relative; z-index: 1; }
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 .rank-badge {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Roboto Slab', serif;
   font-size: 1rem; letter-spacing: 2px; color: #fff;
   background: var(--red); border-radius: 6px;
   border-top: 2px solid rgba(255,255,255,0.2);
@@ -338,8 +338,8 @@ body > * { position: relative; z-index: 1; }
 }
 .header-edit-btn {
   background: var(--surface2); border: 1px solid var(--border2); color: var(--text2);
-  border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 0.78rem; font-weight: 600;
-  transition: all 0.15s; letter-spacing: 0.3px;
+  border-radius: 7px; padding: 6px 10px; cursor: pointer; font-size: 0.72rem; font-weight: 600;
+  transition: all 0.15s; letter-spacing: 0.3px; white-space: nowrap;
 }
 .header-edit-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
 
@@ -350,11 +350,11 @@ body > * { position: relative; z-index: 1; }
 }
 .tabs::-webkit-scrollbar { height: 0; }
 .tab-btn {
-  padding: 14px 18px; border: none; background: none; cursor: pointer;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.95rem; font-weight: 700; color: var(--text2);
+  padding: 12px 14px; border: none; background: none; cursor: pointer;
+  font-family: 'Roboto Slab', serif;
+  font-size: 0.72rem; font-weight: 700; color: var(--text2);
   border-bottom: 2px solid transparent; margin-bottom: -1px;
-  white-space: nowrap; transition: all 0.15s; letter-spacing: 1px;
+  white-space: nowrap; transition: all 0.15s; letter-spacing: 0.5px;
   text-transform: uppercase; position: relative;
 }
 .tab-btn:hover { color: #e2e8f0; }
@@ -405,12 +405,12 @@ body > * { position: relative; z-index: 1; }
 .card > .flex-between:first-child .card-label::after { display: none; }
 
 .card-label {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.85rem; letter-spacing: 3.5px; text-transform: uppercase;
+  font-family: 'Roboto Slab', serif; font-weight: 700;
+  font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase;
   color: var(--text3); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
 }
 .card-label::after { content:''; flex:1; height:1px; background:var(--border); }
-.card-title-lg { font-family:'Bebas Neue',sans-serif; font-size: 1.2rem; letter-spacing: 1.5px; font-weight: 400; color: #fff; margin-bottom: 4px; }
+.card-title-lg { font-family:'Roboto Slab',serif; font-size: 1.2rem; letter-spacing: 1.5px; font-weight: 400; color: #fff; margin-bottom: 4px; }
 .card-accent-red    > .flex-between:first-child > div > .card-title-lg { color: var(--red); }
 .card-accent-blue   > .flex-between:first-child > div > .card-title-lg { color: var(--blue); }
 .card-accent-gold   > .flex-between:first-child > div > .card-title-lg { color: var(--gold); }
@@ -427,7 +427,7 @@ body > * { position: relative; z-index: 1; }
   transition: border-color 0.15s; box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
 .stat-pill:hover { border-color: var(--border2); border-top-color: var(--red); }
-.stat-pill .val { font-family:'Bebas Neue',sans-serif; font-size: 1.5rem; letter-spacing: 1px; color: #fff; font-variant-numeric: tabular-nums; line-height:1; }
+.stat-pill .val { font-family:'Roboto Slab',serif; font-size: 1.5rem; letter-spacing: 1px; color: #fff; font-variant-numeric: tabular-nums; line-height:1; }
 .stat-pill .lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); font-weight: 700; margin-top: 4px; }
 
 /* ─── FORMS ─── */
@@ -510,7 +510,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; min-width: 80px;
 }
-.dp-stat .dv { font-family:'Bebas Neue',sans-serif; font-size: 1.4rem; letter-spacing: 1px; font-weight: 400; color: #fff; font-variant-numeric: tabular-nums; }
+.dp-stat .dv { font-family:'Roboto Slab',serif; font-size: 1.4rem; letter-spacing: 1px; font-weight: 400; color: #fff; font-variant-numeric: tabular-nums; }
 .dp-stat .dl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); font-weight: 600; margin-top: 3px; }
 .dp-stat.warning .dv { color: var(--gold); }
 .dp-stat.danger .dv { color: var(--red); }
@@ -562,7 +562,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 }
 .game-item:hover { border-color: var(--border2); }
 .game-result-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
-.game-result { font-family:'Bebas Neue',sans-serif; font-size: 1.4rem; letter-spacing: 2px; font-weight: 400; }
+.game-result { font-family:'Roboto Slab',serif; font-size: 1.4rem; letter-spacing: 2px; font-weight: 400; }
 .game-result.W { color: var(--green); text-shadow: 0 0 12px rgba(34,197,94,0.4); }
 .game-result.L { color: #f87171; text-shadow: 0 0 12px rgba(248,113,113,0.4); }
 .game-wk { font-size: 0.62rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -619,7 +619,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .sched-type-bowl        { background: var(--gold-dim);      color: var(--gold);   }
 .sched-type-playoff     { background: var(--red-dim);       color: var(--red);    }
 .sched-type-championship{ background: rgba(245,158,11,.25); color: #fbbf24;       }
-.sched-result { font-family:'Bebas Neue',sans-serif; font-size: 0.95rem; letter-spacing: 1.5px; font-weight: 400; flex-shrink: 0; }
+.sched-result { font-family:'Roboto Slab',serif; font-size: 0.95rem; letter-spacing: 1.5px; font-weight: 400; flex-shrink: 0; }
 .sched-result-w { color: var(--green); }
 .sched-result-l { color: var(--red); }
 
@@ -655,7 +655,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 0; padding: 10px 14px; text-align: center;
 }
-.class-stat .cv { font-family:'Bebas Neue',sans-serif; font-size: 2rem; letter-spacing: 1px; font-weight: 400; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
+.class-stat .cv { font-family:'Roboto Slab',serif; font-size: 2rem; letter-spacing: 0; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
 .class-stat .cl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--red); font-weight: 700; margin-top: 5px; }
 
 /* ─── NIL SUMMARY ─── */
@@ -746,13 +746,13 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .acq-toggle-btn { font-family:'Barlow Condensed',sans-serif; font-size:0.9rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; padding:7px 20px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text3); cursor:pointer; transition:all .15s; }
 .acq-toggle-btn:hover { background:var(--surface3); color:var(--text2); }
 .acq-toggle-btn.active { background:var(--red); border-color:var(--red); color:#fff; }
-.depth-group-header { font-family:'Bebas Neue',cursive; font-size:1.05rem; letter-spacing:2.5px; color:var(--red); margin-bottom:8px; padding-bottom:7px; border-bottom:1px solid var(--border2); }
+.depth-group-header { font-family:'Roboto Slab',serif; font-size:1rem; font-weight:800; letter-spacing:0.5px; color:var(--red); margin-bottom:8px; padding-bottom:7px; border-bottom:1px solid var(--border2); }
 .depth-table { display:flex; flex-direction:column; gap:1px; margin-bottom:4px; }
 .depth-header-row,.depth-row { display:grid; grid-template-columns:58px 1fr 1fr 1fr; gap:8px; align-items:center; padding:5px 6px; border-radius:6px; }
 .depth-header-row { padding-bottom:3px; }
 .depth-row:nth-child(even) { background:var(--surface3); }
 .depth-col-label { font-size:0.67rem; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
-.depth-pos-badge { font-family:'Bebas Neue',cursive; font-size:0.88rem; letter-spacing:1.5px; color:var(--text); background:var(--surface3); border:1px solid var(--border2); border-radius:5px; padding:2px 9px; display:inline-block; white-space:nowrap; }
+.depth-pos-badge { font-family:'Roboto Slab',serif; font-size:0.88rem; letter-spacing:1.5px; color:var(--text); background:var(--surface3); border:1px solid var(--border2); border-radius:5px; padding:2px 9px; display:inline-block; white-space:nowrap; }
 .depth-sel { width:100%; font-size:0.78rem; padding:5px 8px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; color:var(--text2); cursor:pointer; transition:border-color .15s; }
 .depth-sel:focus { border-color:var(--red-border); outline:none; }
 .depth-sel:not([value=""]) { color:var(--text); }
@@ -771,7 +771,7 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
 .dev-filter-btn.active { border-color:var(--red);color:var(--red);background:var(--red-dim); }
 .dev-stats-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px; }
 .dev-stat { background:var(--surface2);border:1px solid var(--border);border-radius:0;padding:12px 14px;text-align:center;flex:1;min-width:70px; }
-.dev-stat .dv { font-size:1.8rem;font-weight:400;color:#fff;font-variant-numeric:tabular-nums;font-family:'Bebas Neue',cursive;line-height:1; }
+.dev-stat .dv { font-size:1.8rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;font-family:'Roboto Slab',serif;line-height:1; }
 .dev-stat .dl { font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);font-weight:700;margin-top:5px; }
 .finalize-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border); }
 .finalize-row:last-child { border-bottom:none; }
@@ -797,12 +797,12 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
   </div>
   <div class="header-center">
     <div class="hstat">
-      <span class="record-badge" id="recordDisplay" style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:1.5px;background:none;border:none;padding:0;color:#fff;">0–0</span>
+      <span class="record-badge" id="recordDisplay" style="font-family:'Roboto Slab',serif;font-size:1.2rem;letter-spacing:1.5px;background:none;border:none;padding:0;color:#fff;">0–0</span>
       <div class="hstat-lbl">Record</div>
     </div>
     <div class="hstat-div"></div>
     <div class="hstat">
-      <span id="rankDisplay" style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:1px;color:var(--text3);">Unranked</span>
+      <span id="rankDisplay" style="font-family:'Roboto Slab',serif;font-size:1.05rem;letter-spacing:1px;color:var(--text3);">Unranked</span>
       <div class="hstat-lbl">Rank</div>
     </div>
     <div class="hstat-div"></div>
@@ -1207,14 +1207,14 @@ input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--red);
     </div>
     <div class="matchup-stats-grid" id="matchupStatsGrid"></div>
     <div class="matchup-input-section">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:3px;color:var(--text3);margin-bottom:12px;">Opponent Info</div>
+      <div style="font-family:'Roboto Slab',serif;font-size:0.78rem;letter-spacing:3px;color:var(--text3);margin-bottom:12px;">Opponent Info</div>
       <div class="form-row">
         <div class="form-group"><label>Week</label><input type="text" id="muWeek" placeholder="1" oninput="saveMatchup()"></div>
         <div class="form-group"><label>Opponent</label><input type="text" id="muOpp" placeholder="Team Name" oninput="saveMatchup()"></div>
         <div class="form-group"><label>Opp Ranking</label><input type="text" id="muOppRank" placeholder="#12 or NR" oninput="saveMatchup()"></div>
         <div class="form-group"><label>Opp Record</label><input type="text" id="muOppRecord" placeholder="6-2" oninput="saveMatchup()"></div>
       </div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:3px;color:var(--text3);margin:12px 0 10px;">Opponent Stats (reference)</div>
+      <div style="font-family:'Roboto Slab',serif;font-size:0.78rem;letter-spacing:3px;color:var(--text3);margin:12px 0 10px;">Opponent Stats (reference)</div>
       <div class="form-row">
         <div class="form-group"><label>PPG</label><input type="text" id="muOppPPG" placeholder="28.4" oninput="saveMatchup()"></div>
         <div class="form-group"><label>PPG Allowed</label><input type="text" id="muOppPAG" placeholder="19.1" oninput="saveMatchup()"></div>
@@ -3994,7 +3994,7 @@ function formatPlayerStatsDisplay(pos, stats){
   if(set.length===1&&set[0].textarea) return stats.notes?`<div style="font-size:0.82rem;color:var(--text2);line-height:1.6;">${esc(stats.notes)}</div>`:'';
   const filled=set.filter(f=>stats[f.key]);
   if(!filled.length) return '';
-  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">${filled.map(f=>`<div style="background:var(--surface3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:1px;color:#fff;">${esc(stats[f.key])}</div><div style="font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:2px;">${f.lbl}</div></div>`).join('')}</div>`;
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">${filled.map(f=>`<div style="background:var(--surface3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;text-align:center;"><div style="font-family:'Roboto Slab',serif;font-size:1rem;letter-spacing:1px;color:#fff;">${esc(stats[f.key])}</div><div style="font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:2px;">${f.lbl}</div></div>`).join('')}</div>`;
 }
 
 // ════════════════════════════════════════ SEASON STATS
@@ -4438,7 +4438,7 @@ function renderPlayerStats(){
     <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--red-border);border-radius:9px;padding:12px 14px;margin-bottom:8px;">
       <div class="flex-between" style="margin-bottom:6px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:1px;color:#fff;">${esc(p.name)}</span>
+          <span style="font-family:'Roboto Slab',serif;font-size:1.15rem;letter-spacing:1px;color:#fff;">${esc(p.name)}</span>
           ${p.pos?`<span style="font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--surface3);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;color:var(--text2);">${esc(p.pos)}</span>`:''}
           ${p.year?`<span style="font-size:0.68rem;font-weight:700;color:var(--text3);">${esc(p.year)}</span>`:''}
         </div>
